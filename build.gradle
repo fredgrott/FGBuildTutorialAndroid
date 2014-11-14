@@ -4,13 +4,147 @@ buildscript {
     repositories {
         jcenter()
     }
+    // your buildscript dependencies are gradle plugins that are
+    // specific to android application development
     dependencies {
         classpath 'com.android.tools.build:gradle:0.14.1'
+        // debug log plugin
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
+        // spoon-gradle plugin for debugging, has a configuration block
+        classpath 'com.stanfy.spoon:spoon-gradle-plugin:0.10.0'
+        //loglifecycle plugin
+        classpath 'com.github.stephanenicolas.loglifecycle:loglifecycle-plugin:1.0.3'
+        //bintray for library projects
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5'
+
+
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
+/*
+  This our ext block to put our global vars into so that each build module
+  can use these vars to avoid repeating ourselves.
+*/
+ext {
+
+    /*
+      BuildNumber: My build number is one at the root level for
+                   my build modules. appVersionMajor, appVersionMinor
+                  and appVersionPatch are adjusted manually.
+
+                  Why not incrementing by 1? Default build of an
+                  app has two build flavors Debug and Release and so
+                  it might be computing the number twice due to
+                  calling the root build.gradle twice or more
+                  depending upon how many build flavors you have.
+                  Yes, quirky but still somewhat accurate.
+    */
+    buildNumberPropsFile = file('buildnumber.properties')
+
+    Properties buildNumberProps = new Properties()
+    buildNumberProps.load(new FileInputStream(buildNumberPropsFile))
+
+    buildNumber = buildNumberProps['BUILD_NUMBER'].toInteger() + 1
+    buildNumberProps['BUILD_NUMBER']= buildNumber.toString()
+    buildNumberProps.store(buildNumberPropsFile.newWriter(), null)
+
+    appVersionMajor = 1
+    appVersionMinor = 0
+    appVersionPatch = 0
+    appVersionBuild = buildNumber
+
+    ourVersionCode = appVersionMajor * 10000 + appVersionMinor * 1000 + appVersionPatch * 100 + appVersionBuild
+
+    /*
+        Compute Date and time for reports
+     */
+    reportBuildDate = new Date().format('yyyy.MM.dd', TimeZone.getTimeZone("UTC"))
+    reportBuildTime = new Date().format('HH:mm:ss', TimeZone.getTimeZone("UTC"))
+    buildTime = new Date().format("yyyy-MM-dd'T'HH:mm'Z'", TimeZone.getTimeZone("UTC"))
+
+    /*
+      Reports stuff, ${project.buildDir} is the module build dir
+      Note: check reports are ${project.buildDir}/reports/checkName
+            multiprojectInstrumentedTestsReportsDir is for when we
+            set apply plugin: 'android-reporting' in this global
+            build.gradle file to merge the test reports for all the projects.
+     */
+    buildReportsDir = '${project.buildDir}/reports'
+    buildDashboardReportsDir = '${project.buildDir}/reports/buildDashboard'
+    multiprojectInstrumentedTestsReportsDir = '${rootProject.buildDir}/reports/androidTests-mergedresults'
+    instrumentedTestsReportsDir = '${project.buildDir}/reports/androidTests-results'
+    spoonTestsReportsDir = '${project.buildDir}/reports/androidSpoonTests-results'
+    lintReportsDir = '${project.buildDir}/reports/lintReports'
+
+
+
+    /*
+       Its good practice to rename stuff to avoid conflicting with setters and getters
+       in the android gradle plugins.
+     */
+    ourCompileSdkVersion = 21
+    ourBuildToolsVersion = '21.1.1'
+
+    ourMinSdkVersion = 14
+    ourTargetSdkVersion = 21
+    /*
+     required if we want to use the renderscript support library
+     set in defaultConfig:
+                             renderscriptTargetApi rootProject.ext.ourRenderscriptTargetApi
+                             renderscriptSupportModeEnabled true
+     */
+    ourRenderscriptTargetApi = rootProject.ext.ourCompileSdkVersion
+
+
+    //our dependencies, lowercase to differentiate between deps and other global vars
+    //support libs, see block above for renderscript support lib activation
+    androidsupportv4 = 'com.android.support:support-v4:21.0.0'
+    androidsupportv13 = 'com.android.support:support-v13:21.0.0'
+    androidsupportannotations = 'com.android.support:support-annotations:21.0.0'
+    androidsupportrecyclerviewv7 = 'com.android.support:recyclerview-v7:21.0.0'
+    androidsupportpalettev7 = 'com.android.support:palette-v7:21.0.0'
+    androidsupportmultidexinstrumentation = 'com.android.support:multidex-instrumentation:1.0.0'
+    androidsupportmultidex = 'com.android.support:multidex:1.0.0'
+    androidsupportmediarouterv7 = 'com.android.support:mediarouter-v7:21.0.0'
+    androidsupportleanbackv17 = 'com.android.support:leanback-v17:21.0.0'
+    androidsupportgridlayoutv7 = 'com.android.support:gridlayout-v7:21.0.0'
+    androidsupportcardviewv7 = 'com.android.support:cardview-v7:21.0.0'
+    androidsupportapptcompatv7 = 'com.android.support:appcompatt-v7:21.0.0'
+
+    //assertj libs to match androidsupport stuff
+    assertjandroid = 'com.squareup.assertj:assertj-android:1.0.0'
+    assertjandroidsupportv4 = 'com.squareup.assertj:assertj-android-support-v4:1.0.0'
+    //assertjgoogleplayservices = 'com.squareup.assertj:assertj-android-play-services:1.0.0'
+    assertjappcompat = 'com.squareup.assertj:assertj-android-appcompat-v7:1.0.0'
+    assertjmediarouter = 'com.squareup.assertj:assertj-android-mediarouter-v7:1.0.0'
+    assertjgridlayout = 'com.squareup.assertj:assertj-android-gridlayout-v7:1.0.0'
+    assertjcardview = 'com.squareup.assertj:assertj-android-cardview-v7:1.0.0'
+    assertjrecyclerview = 'com.squareup.assertj:assertj-android-recyclerview-v7:1.0.0'
+    assertjpalette = 'com.squareup.assertj:assertj-android-palette-v7:1.0.0'
+
+    butterknife = 'com.jakewharton:butterknife:6.0.0'
+
+    timber = 'com.jakewharton.timber:timber:2.2.2'
+
+    /*
+    Until UIAutomater is fully enabled in gradle its recommended to use
+    the Espresso DoubleEspresso option for instrumented testing
+     */
+    dexmaker = 'com.google.dexmaker:dexmaker:1.0'
+    dexmakermockito = 'com.google.dexmaker:dexmaker-mockito:1.0'
+    doubleespresso = 'com.jakewharton.espresso:espresso:1.1-r3'
+    mockito = 'org.mockito:mockito-core:1.9.5'
+    spoonclient = 'com.squareup.spoon:spoon-client:1.1.1'
+
+
+
+
+
+
+}
+
 
 allprojects {
     repositories {
