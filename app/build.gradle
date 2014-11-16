@@ -1,25 +1,73 @@
 apply plugin: 'com.android.application'
+apply plugin: 'spoon'
+apply plugin: 'hugo'
+apply plugin: 'loglifecycle'
+
+/*
+  Project Module metadata, some Project objects are read only but we need to set them for
+  a human friendly name/title for our reports so we do this as than we get around the
+  default AndroidStudio thing of naming our first app module app.
+
+  For example, even though through Reports displayName are read-only but we can through
+  changing xsl and passing vars via ant builder get the header of the report to change to
+  reflect our project.ext stuff defined below.
+ */
+ext {
+    ourProjectName = 'BasicApp'
+    ourProjectLead = 'Fred Grott'
+    ourProjectDescription = 'basic app showing build script with app source code'
+}
+
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion rootProject.ext.ourCompileSdkVersion
+    buildToolsVersion rootProject.ext.ourBuildToolsVersion
 
     defaultConfig {
         applicationId "com.grottworkshop.fgbuildtutorialandroid"
-        minSdkVersion 14
-        targetSdkVersion 21
+        minSdkVersion rootProject.ext.ourMinSdkVersion
+        targetSdkVersion rootProject.ext.ourTargetSdkVersion
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
+
+        /*
+        We define some buildConfigField defs here to use
+         */
+        def BOOLEAN = "boolean"
+        def TRUE = "true"
+        def FALSE = "false"
+        def LOG_HTTP_REQUESTS = "LOG_HTTP_REQUESTS"
+        def REPORT_CRASHES = "REPORT_CRASHES"
+        def ENABLE_VIEW_SERVER = "ENABLE_VIEW_SERVER"
+        def ENABLE_SHARING = "ENABLE_SHARING"
+        def DEBUG_IMAGES = "DEBUG_IMAGES"
+
+
+
+
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField BOOLEAN, LOG_HTTP_REQUESTS, FALSE
+            buildConfigField BOOLEAN, REPORT_CRASHES, TRUE
+            buildConfigField BOOLEAN, ENABLE_VIEW_SERVER, FALSE
+            buildConfigField BOOLEAN, ENABLE_SHARING, FALSE
+            buildConfigField BOOLEAN, DEBUG_IMAGES, FALSE
+
+
+
+            /*
+            Separate out your proguard rules into files for different areas/groups as it makes it easier to
+            update the configurations.
+             */
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro' , 'proguard-googleplayservices.txt', 'proguard-butterknife.txt','proguard-dagger.txt','proguard.project.txt'
         }
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:21.0.0'
+    compile rootProject.ext.androidsupportapptcompatv7
 }
