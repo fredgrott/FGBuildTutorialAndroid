@@ -27,9 +27,60 @@ android {
         applicationId "com.grottworkshop.fgbuildtutorialandroid"
         minSdkVersion rootProject.ext.ourMinSdkVersion
         targetSdkVersion rootProject.ext.ourTargetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode rootProject.ext.ourVersionCode
+        versionName "${rootProject.ext.appVersionMajor}.${rootProject.ext.appVersionMinor}.${rootProject.ext.appVersionPatch}"
+
+        buildConfigField "String", "BUILD_TIME", "\"${rootProject.ext.buildTime}\""
+
+        testApplicationId 'com.grottworkshop.fgbuildtutorialandroid.test'
+        testInstrumentationRunner 'com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner'
+        testHandleProfiling true
+        testFunctionalTest true
     }
+    /*
+    dexOptions already handled and set in subprojects block of root
+    build.gradle file
+     */
+
+    testOptions {
+        resultsDir = rootProject.ext.instrumentedTestsReportsDir
+
+    }
+
+    aaptOptions {
+        noCompress 'txt'
+        ignoreAssetsPattern "!.svn:!.git:!.ds_store:!*.scc:.*:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }
+
+    signingConfigs {
+
+        release {
+            //props stored in gradle.properties at userhome .gradle subfolder
+
+            storeFile file(FREDGROTT_RELEASE_STORE_FILE)
+            storePassword FREDGROTT_RELEASE_STORE_PASSWORD
+            keyAlias FREDGROTT_RELEASE_KEY_ALIAS
+            keyPassword FREDGROTT_RELEASE_KEY_PASSWORD
+        }
+
+    }
+
+    /*
+    Enables diamond operator, multi-catch, strings in switches for our
+    minSdkVersion to compileSdkVersion range.
+     */
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    jacoco {
+        // no such property reportsDir for class
+        // com.android.build.gradle.internal.coverage.JacocoExtension_Decorated
+        //reportsDir = file("${rootProject.ext.jacocoReportsDir}")
+    }
+
+
     buildTypes {
 
         /*
@@ -44,6 +95,25 @@ android {
         def ENABLE_SHARING = "ENABLE_SHARING"
         def DEBUG_IMAGES = "DEBUG_IMAGES"
 
+
+        debug {
+            debuggable true
+            minifyEnabled false
+            // dagger jacaco conflict issue is resolved, dx change after buildtoolsversion 21
+            testCoverageEnabled true
+
+            // here we go, versionNameSuffix with build date!
+            applicationIdSuffix '.dev'
+            versionNameSuffix '-dev-' + rootProject.ext.buildTime
+
+            buildConfigField BOOLEAN, LOG_HTTP_REQUESTS, TRUE
+            buildConfigField BOOLEAN, REPORT_CRASHES, FALSE
+            buildConfigField BOOLEAN, ENABLE_VIEW_SERVER, TRUE
+            buildConfigField BOOLEAN, ENABLE_SHARING, TRUE
+            buildConfigField BOOLEAN, DEBUG_IMAGES, TRUE
+
+
+        }
 
 
 
@@ -62,12 +132,127 @@ android {
             Separate out your proguard rules into files for different areas/groups as it makes it easier to
             update the configurations.
              */
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro' , 'proguard-googleplayservices.txt', 'proguard-butterknife.txt','proguard-dagger.txt','proguard.project.txt'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro' , 'proguard-googleplayservices.txt', 'proguard-butterknife.txt','proguard-dagger1.txt','proguard.project.txt'
+
+            applicationIdSuffix '.release'
+            versionNameSuffix '-release-' + rootProject.ext.buildTime
+            signingConfig signingConfigs.release
+
         }
     }
+
+    lintOptions {
+        lintConfig file("okio-custom-lint.xml")
+
+        // set to true to turn off analysis progress reporting by lint
+        quiet false
+        // if true, stop the gradle build if errors are found
+        abortOnError false
+        // if true, only report errors
+        ignoreWarnings true
+        // if true, emit full/absolute paths to files with errors (true by default)
+        //absolutePaths true
+        // if true, check all issues, including those that are off by default
+        checkAllWarnings true
+        // if true, treat all warnings as errors
+        warningsAsErrors true
+        // turn off checking the given issue id's
+        disable 'TypographyFractions', 'TypographyQuotes'
+        // turn on the given issue id's
+        enable 'RtlHardcoded', 'RtlCompat', 'RtlEnabled'
+        // check *only* the given issue id's
+        check 'NewApi', 'InlinedApi'
+        // if true, don't include source code lines in the error output
+        noLines false
+        // if true, show all locations for an error, do not truncate lists, etc.
+        showAll true
+
+        // if true, generate a text report of issues (false by default)
+        textReport true
+        // location to write the output; can be a file or 'stdout'
+        textOutput 'stdout'
+        // if true, generate an XML report for use by for example Jenkins
+        xmlReport false
+        // file to write report to (if not specified, defaults to lint-results.xml)
+        xmlOutput file("${rootProject.ext.lintReportsDir}/lint-report.xml")
+        // if true, generate an HTML report (with issue explanations, sourcecode, etc)
+        htmlReport true
+        // optional path to report (default will be lint-results.html in the builddir)
+        htmlOutput file("${rootProject.ext.lintReportsDir}/lint-report.html")
+
+        // set to true to have all release builds run lint on issues with severity=fatal
+        // and abort the build (controlled by abortOnError above) if fatal issues are found
+        checkReleaseBuilds true
+        // Set the severity of the given issues to fatal (which means they will be
+        // checked during release builds (even if the lint target is not included)
+        fatal 'NewApi', 'InlineApi'
+        // Set the severity of the given issues to error
+        error 'Wakelock', 'TextViewEdits'
+        // Set the severity of the given issues to warning
+        warning 'ResourceAsColor'
+        // Set the severity of the given issues to ignore (same as disabling the check)
+        ignore 'TypographyQuotes'
+
+
+    }
+
+}
+
+/*
+Reports get generated and placed in build/spoon/${Test_VARIANT} folder.
+To instead of running on all connected devices to execute on a specific
+set of devices uncomment devices line and replace serial number with the
+serial numbers of devices you want to target.
+ */
+spoon {
+    // devices = ['333236E9AE5800EC']
+    debug = true
+    //className = 'fully.qualified.TestCase'
+
+    //methodName = 'testMyApp'
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile rootProject.ext.androidsupportapptcompatv7
+
+    compile rootProject.ext.retrofit
+
+    compile rootProject.ext.dagger
+    compile rootProject.ext.butterknife
+
+    compile rootProject.ext.otto
+    compile rootProject.ext.rxjava
+    compile rootProject.ext.timber
+
+    compile rootProject.ext.okhttp
+    compile rootProject.ext.okio
+    compile rootProject.ext.okhttpurlconnection
+
+    debugCompile rootProject.ext.retrofitmock
+
+    provided rootProject.ext.daggercompiler
+
+    androidTestCompile(rootProject.ext.doubleespresso) {
+        exclude group: 'com.squareup.dagger', module: 'dagger'
+        exclude group: 'com.android.support', module: 'support-v4'
+
+    }
+
+    androidTestCompile rootProject.ext.assertjandroid
+    androidTestCompile rootProject.ext.assertjandroidsupportv4
+    // not in my local cache augh
+    //androidTestCompile rootProject.ext.assertjappcompat
+
+    androidTestCompile rootProject.ext.mockito
+    androidTestCompile rootProject.ext.dexmaker
+    androidTestCompile(rootProject.ext.dexmakermockito) {
+        exclude module: 'hamcrest-core'
+        exclude module: 'objenesis'
+        exclude module: 'mockito-core'
+
+    }
+
+    androidTestCompile rootProject.ext.spoonclient
+
 }
