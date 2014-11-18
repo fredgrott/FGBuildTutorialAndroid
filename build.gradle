@@ -188,6 +188,7 @@ ext {
     dexmaker = 'com.google.dexmaker:dexmaker:1.0'
     dexmakermockito = 'com.google.dexmaker:dexmaker-mockito:1.0'
     doubleespresso = 'com.jakewharton.espresso:espresso:1.1-r3'
+    doubleespressoandroidsupportv4 = 'com.jakewharton.espresso:espresso-support-v4:1.1-r3'
     mockito = 'org.mockito:mockito-core:1.9.5'
     spoonclient = 'com.squareup.spoon:spoon-client:1.1.1'
 
