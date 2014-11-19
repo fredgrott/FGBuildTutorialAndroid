@@ -84,7 +84,7 @@ android {
     Or on rooted connected devices with the command:
          $ gradlew connectedCheck
     Coverage reports will be found in
-          build/[reportsDirName]/[coverageDirName]/[BUILD_TYPE]
+          build/[reports/coverage
      */
     jacoco {
         version = '0.7.1.20140508213'
@@ -221,7 +221,6 @@ android {
 
 
 
-
 /*
 Reports get generated and placed in build/spoon/${Test_VARIANT} folder.
 To instead of running on all connected devices to execute on a specific
@@ -237,10 +236,17 @@ spoon {
 }
 
 /*
- Its a good idea to rename the apk file to something reflecting versionCode, etc
+ Its a good idea to rename the apk file to something reflecting versionCode, etc.
+ This handles both cases of a project with build flavors and one without them.
+
+ We also do javadocs for both debug and release
  */
 project.afterEvaluate {
     android.applicationVariants.each { variant ->
+
+        def nameBuildType = variant.buildType.name
+
+
 
         //if variant.productFlavors[0].name == null we have project with no productflavors
         if (variant.productFlavors[0] == null){
@@ -250,12 +256,37 @@ project.afterEvaluate {
                       + variant.buildType.name + "_"
                       + variant.mergedFlavor.versionName + ".apk")
         }else{
+
             variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parentFile,
                     ext.ourProjectName + "_" + variant.productFlavors[0].name + "_"
                             + variant.buildType.name + "_"
                             + variant.mergedFlavor.versionName + ".apk")
         }
 
+
+        task("javadoc${variant.name.capitalize()}", type: Javadoc){
+                description "generates Javadoc for $variant.name"
+                title = "Documentation for $project.ext.ourProjectName $android.defaultConfig.versionName b$android.defaultConfig.versionCode"
+                destinationDir = new File("${project.docsDir}/${variant.name}/javadoc")
+                source = variant.javaCompile.source
+                ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+                ext.googlePlayServicesJar = "${android.sdkDirectory}/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"
+                classpath = files(variant.javaCompile.classpath.files, ext.androidJar, ext.googlePlayServicesJar)
+                exclude '**/R.html', '**/R.*.html'
+                options{
+                    links("http://docs.oracle.com/javase/7/docs/api/");
+                    linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference');
+                    stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
+                }
+
+        }
+
+        task("bundleJavadoc${variant.name.capitalize()}", type: Jar){
+            description "Bundles Javadoc into zip for $variant.name"
+            classifier = 'javadoc'
+            from tasks["javadoc${variant.name.capitalize()}"]
+            destinationDir = new File("${project.docsDir}/${variant.name}/javadoc")
+        }
 
 
     }

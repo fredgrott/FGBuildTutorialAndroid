@@ -103,7 +103,9 @@ ext {
     instrumentedTestsReportsDir = '${rootProject.ext.buildReportsDir}/androidTests-results'
 
     lintReportsDir = '${rootProject.ext.buildReportsDir}/lintReports'
-    jacocoReportsDir = '${rootProject.ext.buildReportsDir}/jacocoReports'
+    javadocsDir = '${rootProject.ext.buildReportsDir}/javadocs'
+
+    javadocsJDK7Stylesheet = '../config/javadocs/jdk7_style_stylesheet.css'
     checkstyleReportsDir = '${rootProject.ext.buildReportsDir}/checkstyleReports'
     jdependReportsDir = '${rootProject.ext.buildReportsDir}/jdependReports'
 
