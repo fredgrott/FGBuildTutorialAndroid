@@ -242,53 +242,64 @@ spoon {
  We also do javadocs for both debug and release
  */
 project.afterEvaluate {
-    android.applicationVariants.each { variant ->
 
-        def nameBuildType = variant.buildType.name
+    def archiveBuildTypes = ["release", "debug"]
+    def archiveFlavors = []
 
+    android.applicationVariants.all { variant ->
+        // copyAPKTask stuff
+        if (variant.buildType.name in archiveBuildTypes){
+            if(variant.productFlavors == null){
+                def taskSuffix = variant.name.capitalize()
+                def version = "${android.defaultConfig.versionCode} (${android.defaultConfig.versionName})"
+                def destination = "${rootDir}/archive/apks/${ext.ourProjectName}/${version}"
 
+                def assembleTaskName = "assemble${taskSuffix}"
+                if (tasks.findByName(assembleTaskName)){
+                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy){
+                        description "Archive/copy APK and mappings.txt to a versioned folder."
+                        from ("${buildDir}"){
 
-        //if variant.productFlavors[0].name == null we have project with no productflavors
-        if (variant.productFlavors[0] == null){
-
-            variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parentFile,
-                    ext.ourProjectName + "_"
-                      + variant.buildType.name + "_"
-                      + variant.mergedFlavor.versionName + ".apk")
-        }else{
-
-            variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parentFile,
-                    ext.ourProjectName + "_" + variant.productFlavors[0].name + "_"
-                            + variant.buildType.name + "_"
-                            + variant.mergedFlavor.versionName + ".apk")
-        }
-
-
-        task("javadoc${variant.name.capitalize()}", type: Javadoc){
-                description "generates Javadoc for $variant.name"
-                title = "Documentation for $project.ext.ourProjectName $android.defaultConfig.versionName b$android.defaultConfig.versionCode"
-                destinationDir = new File("${project.docsDir}/${variant.name}/javadoc")
-                source = variant.javaCompile.source
-                ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-                ext.googlePlayServicesJar = "${android.sdkDirectory}/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"
-                classpath = files(variant.javaCompile.classpath.files, ext.androidJar, ext.googlePlayServicesJar)
-                exclude '**/R.html', '**/R.*.html'
-                options{
-                    links("http://docs.oracle.com/javase/7/docs/api/");
-                    linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference');
-                    stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
+                            include "**/proguard/${variant.buildType.name}/mapping.txt"
+                            include "**/apk/${variant.outputs[0].outputFile.name}"
+                        }
+                        into destination
+                        eachFile { file->
+                            file.path = file.name // so we have a "flat" copy
+                        }
+                        includeEmptyDirs = false
+                    }
+                    tasks[assembleTaskName].finalizedBy = [copyAPKTask]
                 }
 
-        }
+            }else {
 
-        task("bundleJavadoc${variant.name.capitalize()}", type: Jar){
-            description "Bundles Javadoc into zip for $variant.name"
-            classifier = 'javadoc'
-            from tasks["javadoc${variant.name.capitalize()}"]
-            destinationDir = new File("${project.docsDir}/${variant.name}/javadoc")
-        }
+                variant.productFlavors.each { flavor ->
+                    if (flavor.name in archiveFlavors){
+                        def taskSuffix = variant.name.capitalize()
+                        def version = "${android.defaultConfig.versionCode} (${android.defaultConfig.versionName})"
+                        def destination = "${rootDir}/archive/apks/${ext.ourProjectName}/${version}"
 
-
+                        if (tasks.findByName(assembleTaskName)) {
+                            def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy) {
+                                description "Archive/copy APK and mappings.txt to a versioned folder."
+                                from ("${buildDir}") {
+                                    include "**/proguard/${flavor.name}/${variant.buildType.name}/mapping.txt"
+                                    include "**/apk/${variant.outputFile.name}"
+                                }
+                                into destination
+                                eachFile { file->
+                                    file.path = file.name // so we have a "flat" copy
+                                }
+                                includeEmptyDirs = false
+                            }
+                            tasks[assembleTaskName].finalizedBy = [copyAPKTask]
+                        }
+                    }
+                }
+            }
+        } //end copyAPKTask Stuff
+        // javadoctask stuff here 
     }
 }
 

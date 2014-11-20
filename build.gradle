@@ -7,6 +7,8 @@ buildscript {
     // your buildscript dependencies are gradle plugins that are
     // specific to android application development
     dependencies {
+        //some gradle plugins still use old outputFile namely spoon gradle plugin so
+        // stick with 0.14.2 until that changes
         classpath 'com.android.tools.build:gradle:0.14.2'
         // debug log plugin
         classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
