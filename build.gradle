@@ -9,11 +9,11 @@ buildscript {
     dependencies {
         //some gradle plugins still use old outputFile namely spoon gradle plugin so
         // stick with 0.14.2 until that changes
-        classpath 'com.android.tools.build:gradle:0.14.2'
+        classpath 'com.android.tools.build:gradle:0.14.4'
         // debug log plugin
         classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
         // spoon-gradle plugin for debugging, has a configuration block
-        classpath 'com.stanfy.spoon:spoon-gradle-plugin:0.10.0'
+        classpath 'com.stanfy.spoon:spoon-gradle-plugin:0.14.1'
         //loglifecycle plugin
         classpath 'com.github.stephanenicolas.loglifecycle:loglifecycle-plugin:1.0.3'
         //bintray for library projects

@@ -17,6 +17,7 @@ ext {
     ourProjectName = 'BasicApp'
     ourProjectLead = 'Fred Grott'
     ourProjectDescription = 'basic app showing build script with app source code'
+    javadocFooter = "Copyright 2014-$rootProject.ext.reportBuildDate by $project.ext.ourProjectLead Apache License 2.0"
 }
 
 
@@ -235,73 +236,6 @@ spoon {
     //methodName = 'testMyApp'
 }
 
-/*
- Its a good idea to rename the apk file to something reflecting versionCode, etc.
- This handles both cases of a project with build flavors and one without them.
-
- We also do javadocs for both debug and release
- */
-project.afterEvaluate {
-
-    def archiveBuildTypes = ["release", "debug"]
-    def archiveFlavors = []
-
-    android.applicationVariants.all { variant ->
-        // copyAPKTask stuff
-        if (variant.buildType.name in archiveBuildTypes){
-            if(variant.productFlavors == null){
-                def taskSuffix = variant.name.capitalize()
-                def version = "${android.defaultConfig.versionCode} (${android.defaultConfig.versionName})"
-                def destination = "${rootDir}/archive/apks/${ext.ourProjectName}/${version}"
-
-                def assembleTaskName = "assemble${taskSuffix}"
-                if (tasks.findByName(assembleTaskName)){
-                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy){
-                        description "Archive/copy APK and mappings.txt to a versioned folder."
-                        from ("${buildDir}"){
-
-                            include "**/proguard/${variant.buildType.name}/mapping.txt"
-                            include "**/apk/${variant.outputs[0].outputFile.name}"
-                        }
-                        into destination
-                        eachFile { file->
-                            file.path = file.name // so we have a "flat" copy
-                        }
-                        includeEmptyDirs = false
-                    }
-                    tasks[assembleTaskName].finalizedBy = [copyAPKTask]
-                }
-
-            }else {
-
-                variant.productFlavors.each { flavor ->
-                    if (flavor.name in archiveFlavors){
-                        def taskSuffix = variant.name.capitalize()
-                        def version = "${android.defaultConfig.versionCode} (${android.defaultConfig.versionName})"
-                        def destination = "${rootDir}/archive/apks/${ext.ourProjectName}/${version}"
-
-                        if (tasks.findByName(assembleTaskName)) {
-                            def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy) {
-                                description "Archive/copy APK and mappings.txt to a versioned folder."
-                                from ("${buildDir}") {
-                                    include "**/proguard/${flavor.name}/${variant.buildType.name}/mapping.txt"
-                                    include "**/apk/${variant.outputFile.name}"
-                                }
-                                into destination
-                                eachFile { file->
-                                    file.path = file.name // so we have a "flat" copy
-                                }
-                                includeEmptyDirs = false
-                            }
-                            tasks[assembleTaskName].finalizedBy = [copyAPKTask]
-                        }
-                    }
-                }
-            }
-        } //end copyAPKTask Stuff
-        // javadoctask stuff here 
-    }
-}
 
 
 

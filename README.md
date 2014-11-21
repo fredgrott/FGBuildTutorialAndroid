@@ -5,7 +5,13 @@ This is a Gradle Build Tutorial for Android Java Application development. The ge
 is include tips and best practices so you  the beginning android java application developer
 can get up to speed fast and on to coding.
 
+# Architecture
 
+We have some use cases where things change from no product flavors to product flavors than
+to product flavors with flavor groups. The things changing is aspects of the apk, javadocs,
+etc such as file names,etc.  Thus, the idea is to get one block of code that handles
+all these use cases and than our build script becomes two major components that for most
+cases can be copied for all our uses.
 
 # License
 
