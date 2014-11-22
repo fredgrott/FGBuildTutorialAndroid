@@ -13,6 +13,13 @@ etc such as file names,etc.  Thus, the idea is to get one block of code that han
 all these use cases and than our build script becomes two major components that for most
 cases can be copied for all our uses.
 
+Project modules app and library are single developer mode build scripts in that they
+have certain single developer project assumptions. For projects with multiple developers
+and having access to a continuous build integration server you would remove the
+automatic jarring of the release doc,zip of docs, and the zipping of the release and
+proguard mapping files and archiving them at the subfolder archive at project root folder.
+
+
 # License
 
 Build scripts and code is license under the Apache 2.0 License.
