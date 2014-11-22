@@ -1,0 +1,16 @@
+-keep class dagger.** { *; }
+-keep interface dagger.** { *; }
+# not sure this is needed, uncomment if needed
+# -keepnames class com.ourcompany.**
+
+-keep class **$$ModuleAdapter { *; }
+-keep class **$$InjectAdapter { *; }
+-keep class **$$StaticInjection
+
+-keepclassmembers class * {
+    @javax.inject.* <fields>;
+    @javax.inject.* <init>(...);
+    @dagger.* *;
+}
+-adaptclassstrings
+-keepnames class dagger.Lazy
