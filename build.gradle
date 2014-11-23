@@ -1,5 +1,35 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+/*
+Note: This is a One-Developer Style Android Java Application Gradle Build Script.
+      Those of you with projects with multiple developers you can borrow this as long
+      as you remember to change some lines in the project.afterEvaulate block of this script
+      to adjust the build script assumptions.
 
+      Features:
+
+      1. Archiving of debug apk builds for stakeholder demo previews
+      2. Archiving of release apk and proguard mapping files for examination and
+         final check before app store upload.
+      3. Renaming of apk file names to something reflecting app name, version number,
+         version code, and product editions.
+      4. Auto generation of two sets of javadocs, one internal and one external
+      5. Auto code quality checking
+
+     Major Premise:
+
+     We need a way to hook in javadocs and code quality checks per variant/product flavor
+     that allows those tasks to execute automtically when we choose to build/run, ect
+     a certain variant/product flavor.  The trick is that we can use
+
+             assemble$variant.name.captialize()
+
+     as our hook and a new incubatuing gradle task predicate:
+
+            assemble${variant.name.capitalize()}.finalizedBy.ourCoeCheckOrOurJavadoctask
+
+
+
+ */
 buildscript {
     repositories {
         jcenter()
@@ -7,8 +37,7 @@ buildscript {
     // your buildscript dependencies are gradle plugins that are
     // specific to android application development
     dependencies {
-        //some gradle plugins still use old outputFile namely spoon gradle plugin so
-        // stick with 0.14.2 until that changes
+
         classpath 'com.android.tools.build:gradle:0.14.4'
         // debug log plugin
         classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
