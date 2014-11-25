@@ -244,6 +244,10 @@ in the Google android Gradle tooling.
  */
 project.afterEvaluate {
 
+    /*
+    Remember, Variant = BuildType + ProductFlavor
+    Syntax for these arrays is all-lower case variant names.
+     */
     def archiveVariant = ["release", "debug"]
     def codeqaCheckstyleVariant = ["release", "debug"]
     def codeqaClassycleVariant = ["release", "debug"]
@@ -255,7 +259,7 @@ project.afterEvaluate {
     def jarJavadocVariant = ["releasse", "debug"]
 
     android.applicationVariants.all { variant ->
-        
+
         /*
         Our rename apk code block first.
         Code modified from Nick F's(Vokalinteractive)'s example in this bug report:
@@ -279,6 +283,61 @@ project.afterEvaluate {
                                                      + variant.mergedFlavor.versionCode + "_"
                                                      + variant.mergedFlavor.versionName + ".apk")
         }
+
+        /*
+        Our copy apk dynamic task block, we use a task finalizedBy predicate to
+        hook into the assembleVariantName task so that we get the task auto-executed.
+         */
+        if (variant.name in archiveVariant){
+            if (variant.productFlavors[0] == null){
+                def taskSuffix = variant.buildType.name.capitalize()
+                def version = "${android.defaultConfig.versionCode}(${android.defaultConfig.versionName})"
+                def destination = "${rootProject.projectDir}archive/apks/${project.ext.ourProjectName}/${variant.name}/${version}"
+                def assembleTaskName = "assemble${taskSuffix}"
+                if (tasks.findByName(assembleTaskName)){
+                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy){
+                        description "Archive/copy apk and proguard mappings.txt to a versioned folder."
+                        from ("${buildDir}"){
+                            include "**/proguard/${variant.buildType.name}/mapping.txt"
+                            include "**/apk/${variant.outputs[0].outputFile.name}"
+                        }
+                        into destination
+                        eachFile { file ->
+                            file.path = file.name // to get flat copy
+
+                        }
+                        includeEmptyDirs = false
+
+                    }
+                    tasks[assembleTaskName].finalizedBy=[copyAPKTask]
+                }
+            }else{
+                def taskSuffix = variant.buildType.name.capitalize() + variant.productFlavors[0].name.capitalize()
+                def version = "${variant.mergedFlavor.versionCode}(${variant.mergedFlavor.versionName})"
+                def destination = "${rootProject.projectDir}archive/apks/${project.ext.ourProjectName}/${variant.name}/${version}"
+                def assembleTaskName = "assemble${taskSuffix}"
+                if (tasks.findByName(asembleTaskName)){
+
+                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy){
+                        description "Archive/copy APK and proguard mappings.txt to a versioned folder."
+                        from ("${buildDir}"){
+                            include "**/proguard/${variant.productFlavors[0].name}/${variant.buildType.name}/mapping.txt"
+                            include "**/apk/${variant.outputFile.name}"
+                        }
+                        into destination
+                        eachFile { file ->
+                            file.path = file.name // so we get flat copy
+
+                        }
+                        includeEmptyDirs = false
+                    }
+                    tasks[assembleTaskName].finalizedBy = [copyAPKTask]
+                }
+
+            }
+        }// end copy apk task
+
+
     }
 
 
