@@ -235,8 +235,57 @@ spoon {
 
     //methodName = 'testMyApp'
 }
+/*
+The genral idea here is that we want a flexible way that developer can
+control what variants get code Qa runa nd javadoc'd while at the same time
+adhering to some best practices Google is following in the android gradle tooling
+so that this code block does not break over every minor or major version change
+in the Google android Gradle tooling.
+ */
+project.afterEvaluate {
+
+    def archiveVariant = ["release", "debug"]
+    def codeqaCheckstyleVariant = ["release", "debug"]
+    def codeqaClassycleVariant = ["release", "debug"]
+    def codeqaJavancssVariant = ["release", "debug"]
+    def codeqaJdependVariant = ["release", "debug"]
+    def codeqaLintVariant = ["release", "debug"]
+    def javadocVariant = ["release", "debug"]
+    def archiveJavadocVariant = ["release", "debug"]
+    def jarJavadocVariant = ["releasse", "debug"]
+
+    android.applicationVariants.all { variant ->
+        
+        /*
+        Our rename apk code block first.
+        Code modified from Nick F's(Vokalinteractive)'s example in this bug report:
+                  https://code.google.com/p/android/issues/detail?id=79123
+        I added the productFlavor null check and added VersionCode to file naming.
+        I think I got it right with the multiple apk version code scheme as well, I hope...
+        according to:
+                 http://tools.android.com/tech-docs/new-build-system/tips
+         */
+        if (variant.productFlavors[0] == null){
+
+            variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parentFile,
+                                                     project.ext.ourProjectName + "_"
+                                                     + variant.buildType.name + "_"
+                                                     + android.defaultConfig.versionCode + "_"
+                                                     + android.defaultConfig.versionName + ".apk")
+        }else{
+            variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parentFile,
+                                                     project.ext.ourProjectName + "_"
+                                                     + variant.productFlavors[0].name + "_"
+                                                     + variant.mergedFlavor.versionCode + "_"
+                                                     + variant.mergedFlavor.versionName + ".apk")
+        }
+    }
 
 
+
+
+
+}
 
 
 

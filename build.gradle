@@ -94,6 +94,7 @@ ext {
                   calling the root build.gradle twice or more
                   depending upon how many build flavors you have.
                   Yes, quirky but still somewhat accurate.
+
     */
     buildNumberPropsFile = file('buildnumber.properties')
 
