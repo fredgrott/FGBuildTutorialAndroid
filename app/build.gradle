@@ -235,117 +235,59 @@ spoon {
 
     //methodName = 'testMyApp'
 }
+
 /*
-The genral idea here is that we want a flexible way that developer can
-control what variants get code Qa runa nd javadoc'd while at the same time
-adhering to some best practices Google is following in the android gradle tooling
-so that this code block does not break over every minor or major version change
-in the Google android Gradle tooling.
+Code block set up so that we dynmaically generate some tasks for codeqa and javadocs
+to execute on both debug and release trunks and comput apk file ouput for a app module
+project that does not have any product flavors or flavor dimensions. Do not use if
+you have product flavors and flavor dimensions as it will bomb.
  */
 project.afterEvaluate {
-
-    /*
-    Remember, Variant = BuildType + ProductFlavor
-    Syntax for these arrays is all-lower case variant names.
-     */
     def archiveVariant = ["release", "debug"]
     def codeqaCheckstyleVariant = ["release", "debug"]
     def codeqaClassycleVariant = ["release", "debug"]
     def codeqaJavancssVariant = ["release", "debug"]
     def codeqaJdependVariant = ["release", "debug"]
-    def codeqaLintVariant = ["release", "debug"]
     def javadocVariant = ["release", "debug"]
     def archiveJavadocVariant = ["release", "debug"]
     def jarJavadocVariant = ["releasse", "debug"]
 
     android.applicationVariants.all { variant ->
 
-        /*
-        Our rename apk code block first.
-        Code modified from Nick F's(Vokalinteractive)'s example in this bug report:
-                  https://code.google.com/p/android/issues/detail?id=79123
-        I added the productFlavor null check and added VersionCode to file naming.
-        I think I got it right with the multiple apk version code scheme as well, I hope...
-        according to:
-                 http://tools.android.com/tech-docs/new-build-system/tips
-         */
-        if (variant.productFlavors[0] == null){
-
-            variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parentFile,
-                                                     project.ext.ourProjectName + "_"
-                                                     + variant.buildType.name + "_"
-                                                     + android.defaultConfig.versionCode + "_"
-                                                     + android.defaultConfig.versionName + ".apk")
-        }else{
-            variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parentFile,
-                                                     project.ext.ourProjectName + "_"
-                                                     + variant.productFlavors[0].name + "_"
-                                                     + variant.mergedFlavor.versionCode + "_"
-                                                     + variant.mergedFlavor.versionName + ".apk")
-        }
-
-        /*
-        Our copy apk dynamic task block, we use a task finalizedBy predicate to
-        hook into the assembleVariantName task so that we get the task auto-executed.
-         */
+        //rename apk file  block
+        variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
+                                                 project.ext.ourProjectName + "_"
+                                                 + variant.buildType.name + "_"
+                                                 + android.defaultConfig.versionCode + "_"
+                                                 + android.defaultConfig.versionName + ".apk")
+        // copy apk block
         if (variant.name in archiveVariant){
-            if (variant.productFlavors[0] == null){
-                def taskSuffix = variant.buildType.name.capitalize()
-                def version = "${android.defaultConfig.versionCode}(${android.defaultConfig.versionName})"
-                def destination = "${rootProject.projectDir}archive/apks/${project.ext.ourProjectName}/${variant.name}/${version}"
-                def assembleTaskName = "assemble${taskSuffix}"
-                if (tasks.findByName(assembleTaskName)){
-                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy){
-                        description "Archive/copy apk and proguard mappings.txt to a versioned folder."
-                        from ("${buildDir}"){
-                            include "**/proguard/${variant.buildType.name}/mapping.txt"
-                            include "**/apk/${variant.outputs[0].outputFile.name}"
-                        }
-                        into destination
-                        eachFile { file ->
-                            file.path = file.name // to get flat copy
-
-                        }
-                        includeEmptyDirs = false
+            def taskSuffix = variant.buildType.name.capitalize()
+            def varsion = "${android.defaultConfig.versionCode}(${android.defaultConfig.versionName})"
+            def destination = "${rootProject.projectDir}/archive/apks/${project.ext.ourProjectName}/${variant.name}/${version}"
+            def assembleTaskName = "assemble${taskSuffix}"
+            if (tasks.findByName(assembleTaskName)){
+                def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy){
+                    description "Archive/copy apk and proguard mappings.txt to a versioned folder."
+                    from ("${buildDir}"){
+                        include "**/proguard/${variant.buildType.name}/mapping.txt"
+                        include "**/apk/${variant.outputs[0].outputFile.name}"
+                    }
+                    into destination
+                    eachFile { file ->
+                        file.path = file.name // to get flat copy
 
                     }
-                    tasks[assembleTaskName].finalizedBy=[copyAPKTask]
+                    includeEmptyDirs = false
+
                 }
-            }else{
-                def taskSuffix = variant.buildType.name.capitalize() + variant.productFlavors[0].name.capitalize()
-                def version = "${variant.mergedFlavor.versionCode}(${variant.mergedFlavor.versionName})"
-                def destination = "${rootProject.projectDir}archive/apks/${project.ext.ourProjectName}/${variant.name}/${version}"
-                def assembleTaskName = "assemble${taskSuffix}"
-                if (tasks.findByName(asembleTaskName)){
-
-                    def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type:Copy){
-                        description "Archive/copy APK and proguard mappings.txt to a versioned folder."
-                        from ("${buildDir}"){
-                            include "**/proguard/${variant.productFlavors[0].name}/${variant.buildType.name}/mapping.txt"
-                            include "**/apk/${variant.outputFile.name}"
-                        }
-                        into destination
-                        eachFile { file ->
-                            file.path = file.name // so we get flat copy
-
-                        }
-                        includeEmptyDirs = false
-                    }
-                    tasks[assembleTaskName].finalizedBy = [copyAPKTask]
-                }
-
+                tasks[assembleTaskName].finalizedBy=[copyAPKTask]
             }
-        }// end copy apk task
 
-
+        }
     }
 
-
-
-
-
 }
-
 
 
 dependencies {
