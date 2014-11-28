@@ -285,6 +285,55 @@ project.afterEvaluate {
             }
 
         }
+
+
+        if (variant.name in javadocVariant){
+            def taskSuffix = variant.buildType.name.capitalize()
+            def assembleTaskName = "assemble${taskSuffix}"
+            def javadocTaskName = "javadoc${taskSuffix}"
+
+            if (tasks.findByName(assembleTaskName)){
+               def myJavadocTask = tasks.create(name:javadocTaskName, type: Javadoc){
+                    description  'Javadoc of ${variant.name}'
+                    destinationDir = new File("${project.docsDir}/${variant.name}/javadoc")
+                    source = files("${variant.javaCompile.source}")
+                    //bootclasspath jars
+                    def androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+                    classpath = files(variant.javaCompile.classpath.files, androidJar)
+                    exclude '**/BuildConfig.java'
+                    exclude '**/R.java'
+                    title = "${project.ext.ourProjectName} version:${android.defaultConfig.versionCode}"
+                    options{
+                        docTitle = "Generated Javadoc for $project.ext.ourProjectName for $variant.name"
+                        windowTitle = "javadoc:$variant.name"
+                        memberLevel = JavadocMemberLevel.PROTECTED
+                        author = true
+                        header = project.ext.ourProjectName
+                        footer = project.ext.javadocFooter
+                        linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference')
+                        stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
+
+                    }
+                    doLast{
+                        copy {
+
+                            from "${project.docsDir}/${variant.name}/javadoc"
+                            into "${rootProject.projectDir}/archive/docs/${variant.name}/${android.defau8ltConfig.versionCode}/javadoc"
+                        }
+                    }
+
+                }
+
+
+
+
+
+                tasks[assembleTaskName].finalizedBy=[myJavadocTask]
+
+            }
+        }
+
+
     }
 
 }

@@ -38,7 +38,7 @@ buildscript {
     // specific to android application development
     dependencies {
 
-        classpath 'com.android.tools.build:gradle:0.14.4'
+        classpath 'com.android.tools.build:gradle:1.0.0-rc1'
         // debug log plugin
         classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
         // spoon-gradle plugin for debugging, has a configuration block
