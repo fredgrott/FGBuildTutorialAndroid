@@ -247,7 +247,7 @@ spoon {
 }
 
 /*
-Code block set up so that we dynmaically generate some tasks for codeqa and javadocs
+Code block set up so that we dynamically generate some tasks for codeqa and javadocs
 to execute on both debug and release trunks and compute apk file output for a app module
 project that does not have any product flavors or flavor dimensions. Do not use if
 you have product flavors and flavor dimensions as it will bomb.
@@ -255,7 +255,7 @@ you have product flavors and flavor dimensions as it will bomb.
 project.afterEvaluate {
     def archiveVariant = ["release", "debug"]
 
-    
+
 
     android.applicationVariants.all { variant ->
 
