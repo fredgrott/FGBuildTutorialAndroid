@@ -248,19 +248,14 @@ spoon {
 
 /*
 Code block set up so that we dynmaically generate some tasks for codeqa and javadocs
-to execute on both debug and release trunks and comput apk file ouput for a app module
+to execute on both debug and release trunks and compute apk file output for a app module
 project that does not have any product flavors or flavor dimensions. Do not use if
 you have product flavors and flavor dimensions as it will bomb.
  */
 project.afterEvaluate {
     def archiveVariant = ["release", "debug"]
-    def codeqaCheckstyleVariant = ["release", "debug"]
-    def codeqaClassycleVariant = ["release", "debug"]
-    def codeqaJavancssVariant = ["release", "debug"]
-    def codeqaJdependVariant = ["release", "debug"]
-    def javadocVariant = ["release", "debug"]
-    def archiveJavadocVariant = ["release", "debug"]
-    def jarJavadocVariant = ["releasse", "debug"]
+
+    
 
     android.applicationVariants.all { variant ->
 
