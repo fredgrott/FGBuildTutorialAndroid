@@ -363,12 +363,12 @@ pmd {
     sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
     reportsDir = file('${project.buildDir}/reports/pmd')
 
-    
+
 
 }
 jdepend{
     ignoreFailures = true
-    sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
+    sourceSets = [android.sourceSets.main]
     reportsDir = file('${project.buildDir}/reports/jdepend')
 
 
