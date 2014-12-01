@@ -338,65 +338,42 @@ project.afterEvaluate {
     execute in dependence of the check anchor task and read the sourceSets of
     product with or without variants correctly. Thus, we put them here to
     differentiate from any other no default code-quality checks you may have.
+
+    If we define our code-quality tasks as a clone of tasks than we
+    we do not get access to properties set in the TaskExtension
+    such as reportsDir and sourceSets?
      */
- task ("androidChekstyle",type: Checkstyle) {
-     description = 'Runs checkstyle checks on sourcesets of the android project'
-     group = 'verfication'
-     ignoreFailures = false
-     showViolations = true
-     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
-     // remember sourceSets defualts to project.sourceSets
-     source = 'src'
-     include '**/*.java'
-     exclude '**/gen/**'
-     // gradle plugin defaults to toolVersion = '5.1'
+checkstyle {
+    ignoreFailures = false
+    showViolations = true
+    // do we need to change this back to
+    // ${project.projectDir}/config/checkstyle/checkstyle.xml?
+    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    // by specifying sourcesets instead of source we should than be able to use this for
+    // when we have flavors
+    sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
+    reportsDir = file('${project.buildDir}/reports/checkstyle')
 
-     classpath = files()
+}
 
-     // default checkstyle task only has an xml report
-     reports {
-         xml.enabled = true
-         xml.destination = "${project.buildDir}/reports/checkstyle"
-     }
-
- }
-task ("androidPmd",type: Pmd){
-    description = 'runs pmd checks on sourcesets of the android project'
-    group = 'verification'
-    ignoreFailures = true
-    ruleSets = ["basic", "braces", "strings"]
-    // gradle plugin defaults to toolVersion = '5.1.1'
+pmd {
+    ignoreFailures = false
     consoleOutput = true
-    //remember sourceSets defaults to project.sourceSets
-    source = 'src'
-    include  '**/*.java'
-    exclude '**/gen/**'
+    ruleSets = ["basic", "braces", "strings", "android", "junit"]
+    sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
+    reportsDir = file('${project.buildDir}/reports/pmd')
 
-
-    reports {
-        xml.enabled = true
-        html.enabled = true
-        xml.destination = "${project.buildDir}/reports/pmd"
-        html.destination = "${project.buildDir}/reports/pmd"
-    }
-}
-task ("androidJdepend", type: JDepend){
-    description = 'Runs jdepend chekcs on sourcesets of the anroid project'
-    group = 'verfication'
-
-    //gradle plugin defaults to toolVersion= '2.9.1'
-
-    // in projects with multiple variants we will have do something different
-    // as than we want jdepend only run on the variant classes
-    classesDir = file('build/intermediates/classes/debug')
-
-    // no reportsDir in jdepend plugin and no html reports either
-    reports{
-        xml.enabled = true
-        xml.destination = '${project.buildDir}/reports/jdepend'
-    }
+    
 
 }
+jdepend{
+    ignoreFailures = true
+    sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
+    reportsDir = file('${project.buildDir}/reports/jdepend')
+
+
+}
+
 
 
 
