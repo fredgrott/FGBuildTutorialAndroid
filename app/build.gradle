@@ -346,6 +346,7 @@ project.afterEvaluate {
 checkstyle {
     ignoreFailures = false
     showViolations = true
+    toolVersion = '6.1'
     // do we need to change this back to
     // ${project.projectDir}/config/checkstyle/checkstyle.xml?
     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
@@ -359,6 +360,7 @@ checkstyle {
 pmd {
     ignoreFailures = false
     consoleOutput = true
+    toolVersion = '5.2.1'
     ruleSets = ["basic", "braces", "strings", "android", "junit"]
     sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
     reportsDir = file('${project.buildDir}/reports/pmd')
@@ -368,6 +370,7 @@ pmd {
 }
 jdepend{
     ignoreFailures = true
+    toolVersion = '2.9.1'
     sourceSets = [android.sourceSets.main]
     reportsDir = file('${project.buildDir}/reports/jdepend')
 
