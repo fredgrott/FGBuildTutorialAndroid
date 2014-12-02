@@ -120,26 +120,33 @@ ext {
     buildTime = new Date().format("yyyy-MM-dd'T'HH:mm'Z'", TimeZone.getTimeZone("UTC"))
 
     /*
-      Reports stuff, ${project.buildDir} is the module build dir
-      Note: check reports are ${project.buildDir}/reports/checkName
-            multiprojectInstrumentedTestsReportsDir is for when we
-            set apply plugin: 'android-reporting' in this global
-            build.gradle file to merge the test reports for all the projects.
-
-            reportsDir is read only we obviously set reportsDirName first, hence the
-            buildReportsDirName property setting.
+    Android gradle plugin only loads java-base plugin and thus project docsDir and
+    project reportsDir are set to defaults if not developer set in a build file.
+    Since use the defaults set the name here to our own var to avoid us messing up.
      */
     buildReportsDirName = 'reports'
-    buildReportsDir = '${project.buildDir}/${rootProject.ext.buildReportsDirName}'
-    multiprojectInstrumentedTestsReportsDir = '${rootProject.ext.buildReportsDir}/androidTests-mergedresults'
-    instrumentedTestsReportsDir = '${rootProject.ext.buildReportsDir}/androidTests-results'
+    buildDocsDirName = 'docs'
+    buildReportsBaseDir = '${project.buildDir}/${project.ext.buildReportsDirName}'
+    buildDocsBaseDir = '${project.buildDir}/${project.ext.buildDocsDirName}'
 
-    lintReportsDir = '${rootProject.ext.buildReportsDir}/lintReports'
-    javadocsDir = '${rootProject.ext.buildReportsDir}/javadocs'
+    testOptionsResultsDir = '${rootProject.ext.buildreportsBaseDir}/androidTest-results'
+    lintReportsDir = '${rootProject.ext.buildReportsBaseDir}/lintReports'
+    // javadoc scheme is baseDir/sourceSetName/javadoc
+    javadocBaseDir = '${rootProject.ext.buildDocsBaseDir}'
+    // scheme for codeqa reports dirs is baseReportsDir/codeqaname/sourceSetname
+    checkstyleReportsDir = '${rootProject.ext.buildReportsBaseDir}/checkstyle'
+    jdependReportsDir = '${rootProject.ext.buildReportsBaseDir}/jdepend'
+    pmdReportsDir = '${rootProject.ext.buildReportsBaseDir}/pmd'
+    findbugsReportsDir = '${rootProject.ext.buildReportsBaseDir}/findbugs'
 
-    javadocsJDK7Stylesheet = '../config/javadocs/jdk7_style_stylesheet.css'
-    checkstyleReportsDir = '${rootProject.ext.buildReportsDir}/checkstyleReports'
-    jdependReportsDir = '${rootProject.ext.buildReportsDir}/jdependReports'
+    baseConfigDir = '${rootProject.projectDir}/config'
+    javadocsJDK7Stylesheet = '${rootProject.ext.baseConfigDir}/javadocs/jdk7_style_stylesheet.css'
+    checkstyleConfigFile = '${rootProject.ext.baseConfigDir}/checkstyle/checkstyle_checks.xml'
+
+
+
+
+
 
 
 
@@ -165,6 +172,19 @@ ext {
     Property flags
      */
     preDexLibs = !project.hasProperty('disablePreDex')
+
+    //our codeqa deps
+    codeqaclassycle = 'org.specs2:classycle:1.4.3'
+    codeqacheckstyle = 'com.puppycrawl.tools:checkstyle:6.1'
+    codeqapmd = 'net.sourceforge.pmd:pmd-java:5.2.1'
+    codeqajdepend = 'jdepend:jdepend:2.9.1'
+    codeqajdependant = 'org.apache.ant:ant-depend:1.8.2'
+    codeqajavancss = 'org.codehaus.javancss:javancss:33.54'
+    ccodeqafindbugs = 'com.google.code.findbugs:findbugs:3.0.0'
+    codeqajacoco = 'org.jacoco:org.jacoco.agent:0.7.2.201409121644'
+    codeqajacocoant = 'org.jacoco:org.jacoco.ant:0.7.2.201409121644'
+
+
 
 
     //our dependencies, lowercase to differentiate between deps and other global vars

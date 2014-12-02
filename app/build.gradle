@@ -51,7 +51,7 @@ android {
      */
 
     testOptions {
-        resultsDir = rootProject.ext.instrumentedTestsReportsDir
+        resultsDir = rootProject.ext.testOptionsResultsDir
 
     }
 
@@ -251,6 +251,17 @@ Code block set up so that we dynamically generate some tasks for codeqa and java
 to execute on both debug and release trunks and compute apk file output for a app module
 project that does not have any product flavors or flavor dimensions. Do not use if
 you have product flavors and flavor dimensions as it will bomb.
+
+While we can configure variant.outputs with variants, codeqa report and javadoc
+generation should be done via
+        android.sourceSets.each { sourceSet ->
+            codeQA task and task report creation/configuration
+            javadoc task create/configuration
+        }
+
+The key question is does this go before the android.applicationVariants block.
+I believe it goes before because after android.applicationVariants is called you
+can no longer modify the android app model.
  */
 project.afterEvaluate {
     def archiveVariant = ["release", "debug"]
@@ -365,8 +376,12 @@ pmd {
     sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
     reportsDir = file('${project.buildDir}/reports/pmd')
 
-
-
+}
+tasks.withType(Pmd){
+    reports {
+        xml.enabled = true
+        html.enabled = false
+    }
 }
 jdepend{
     ignoreFailures = true
@@ -374,9 +389,13 @@ jdepend{
     sourceSets = [android.sourceSets.main]
     reportsDir = file('${project.buildDir}/reports/jdepend')
 
-
 }
-
+tasks.withType(JDepend){
+    reports{
+        xml.enabled = true
+        text.enabled = false
+    }
+}
 
 
 
@@ -388,6 +407,8 @@ configurations{
     checkstyle
     pmd
     jdepend
+    androidJacocoAgent
+    androidJacocoAnt
 }
 
 
@@ -396,9 +417,12 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile rootProject.ext.androidsupportapptcompatv7
 
-    checkstyle 'com.puppycrawl.tools:checkstyle:6.1'
-    pmd 'net.sourceforge.pmd:pmd-java:5.2.1'
-    jdepend 'jdepend:jdepend:2.9.1'
+    checkstyle rootProject.ext.codeqacheckstyle
+    pmd rootProject.ext.codeqapmd
+    jdepend rootProject.ext.codeqajdepend
+    jdepend rootProject.ext.codeqajdependant
+    androidJacocoAgent rootProject.ext.codeqajacoco
+    androidJacocoAnt rootProject.ext.codeqajacocoant
 
 
     compile rootProject.ext.retrofit
