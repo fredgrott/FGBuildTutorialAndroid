@@ -266,6 +266,9 @@ can no longer modify the android app model.
 project.afterEvaluate {
     def archiveVariant = ["release", "debug"]
     def javadocSourceSetNot = ["androidTest"]
+    // the checks that require a compile we DAG to detect if the dep compile is
+    // scheduled to be executed if so than we dynamically set execute
+    // after the scheduled compile?
     def jdependSourceSetNot = ["androidTest"]
     def findbugsSourceSetNot = ["androidTest"]
 
