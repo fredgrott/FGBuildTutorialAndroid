@@ -265,6 +265,9 @@ can no longer modify the android app model.
  */
 project.afterEvaluate {
     def archiveVariant = ["release", "debug"]
+    def javadocSourceSetNot = ["androidTest"]
+    def jdependSourceSetNot = ["androidTest"]
+    def findbugsSourceSetNot = ["androidTest"]
 
 
 
@@ -466,3 +469,4 @@ dependencies {
     androidTestCompile rootProject.ext.spoonclient
 
 }
+
