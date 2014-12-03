@@ -265,12 +265,17 @@ can no longer modify the android app model.
  */
 project.afterEvaluate {
     def archiveVariant = ["release", "debug"]
-    def javadocSourceSetNot = ["androidTest"]
+
     // the checks that require a compile we DAG to detect if the dep compile is
     // scheduled to be executed if so than we dynamically set execute
     // after the scheduled compile?
     def jdependSourceSetNot = ["androidTest"]
     def findbugsSourceSetNot = ["androidTest"]
+
+
+    android.sourceSets.each { sourceSet ->
+
+    }
 
 
 
@@ -308,6 +313,7 @@ project.afterEvaluate {
 
         }
         // dynamic javadoc task setup, no automatic hooks
+        // by variant as we grab our sourceSet via variants
         task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
             description = 'Javadoc of $variant.name'
             group = 'documentaion'
@@ -315,7 +321,7 @@ project.afterEvaluate {
             // thus if we need different we need to set it ourselves
             title = "$project.ext.ourProjectName $android.defaultConfig.versionCode $android.defaultConfig.versionName API"
             // I do not think JavaBase plugin sets docsDir as I was getting symbol not resolved
-            destinationDir = new File("${project.buildDir}/docs/${variant.name}/javadoc")
+            destinationDir = new File("${rootProject.ext.buildDocsBaseDir}/${variant.name}/javadoc")
             source = variant.javaCompile.source
             def myAndroidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
             def myGooglePlayServicesJar = "${android.sdkDirectory}/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"
@@ -367,10 +373,11 @@ checkstyle {
     // do we need to change this back to
     // ${project.projectDir}/config/checkstyle/checkstyle.xml?
     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
-    // by specifying sourcesets instead of source we should than be able to use this for
-    // when we have flavors
-    sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
-    reportsDir = file('${project.buildDir}/reports/checkstyle')
+    // do we assume that project.sourceSets matches android.sourceSets?
+    // if so than we can elimate this line as checks plugins default to
+    // sourceSets = project.sourceSets if not set
+
+    reportsDir = file('${rootProject.ext.checkstyleReportsDir}')
 
 }
 
@@ -379,8 +386,8 @@ pmd {
     consoleOutput = true
     toolVersion = '5.2.1'
     ruleSets = ["basic", "braces", "strings", "android", "junit"]
-    sourceSets = [android.sourceSets.main, android.sourceSets.androidTest]
-    reportsDir = file('${project.buildDir}/reports/pmd')
+
+    reportsDir = file('${rootProject.ext.pmdReportsDir}')
 
 }
 tasks.withType(Pmd){
@@ -392,8 +399,8 @@ tasks.withType(Pmd){
 jdepend{
     ignoreFailures = true
     toolVersion = '2.9.1'
-    sourceSets = [android.sourceSets.main]
-    reportsDir = file('${project.buildDir}/reports/jdepend')
+
+    reportsDir = file('${rootProject.ext.jdependReportsDir}')
 
 }
 tasks.withType(JDepend){
