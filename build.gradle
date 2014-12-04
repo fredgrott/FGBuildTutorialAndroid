@@ -76,6 +76,9 @@ apply plugin: 'build-dashboard'
 
 buildDashboard{
     //task will not be defined yet as to why this does not work
+    // hmm codeqa tasks not showing in tasks listing
+    // create clones of tasks and use sourceSets block to
+    // create the SourceSet ones?
     //aggregate checkstyleMain, pmdMain, jdependMain, findbugsMain
 
 }
