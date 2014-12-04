@@ -267,14 +267,73 @@ can no longer modify the android app model.
 project.afterEvaluate {
     def archiveVariant = ["release", "debug"]
 
-    // the checks that require a compile we DAG to detect if the dep compile is
-    // scheduled to be executed if so than we dynamically set execute
-    // after the scheduled compile?
-    def jdependSourceSetNot = ["androidTest"]
-    def findbugsSourceSetNot = ["androidTest"]
+    def jdependFindbugsSourceSet = ['release', 'main']
 
 
     android.sourceSets.each { sourceSet ->
+
+
+        task("checkstyle${sourceSet.name.capitalize()}", type: Checkstyle){
+
+            description = 'completes checkstyle checks for $sourceSet.name.capitalize()'
+            group = 'verification'
+            ignoreFailures = false
+            showViolations = true
+            source = sourceSet
+            configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+
+
+
+            reports {
+                xml.destination = file('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.xml')
+            }
+        }
+
+        task("pmd${sourceSet.name.capitalize()}", type: Pmd){
+            description = 'completes pmd checks for $sourceSet.name.capitalize()'
+            group = 'verification'
+            ignoreFailures = false
+            consoleOutput = true
+            ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
+
+            reports {
+                xml.enabled = true
+                xml.destination = file('${rootProject.ext.pmdReportsDir}/${sourceSet.name}-pmd.xml')
+                html.enabled = false
+            }
+        }
+
+        if (sourceSet.name in jdependFindbugsSourceSet){
+
+            task("jdepend${sourceSet.name.capitalize()}", type: JDepend){
+                description = 'completes jdepend ananlysis of $sourceSet.name.capitalize()'
+                group = 'verification'
+                //okay this does not work
+                // sourceSet.what?compile
+                //classesDir = sourceSet.allJava.compile
+                reports {
+                    xml.enabled = true
+                    xml.destination = file('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.xml')
+                    text.enabled = false
+                }
+            }
+
+            task("findbugs${sourceSet.name.capitalize()}", type: FindBugs){
+                description = 'completes findbugs analysis of $sourceSet.name.capitalize()'
+                group = 'verification'
+                ignoreFailures = true
+                effort = 'max'
+                reportLevel = 'high'
+                // classes fileTree(sourceSet.output.classesDir)
+                //classpath = sourceSet.compileClasspath
+                reports {
+                    xml.destination = file('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
+                }
+
+                excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
+            }
+        }
+
 
     }
 
@@ -376,72 +435,7 @@ project.afterEvaluate {
     }
 }
 
-/*
-By not declaring source or sourceSet Gradle will default to the
-project sourcesets and create new tasks for the sourcesets
- */
-checkstyle {
-    ignoreFailures = false
-    showViolations = true
-    toolVersion = '6.1'
 
-    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
-
-
-    reportsDir = file('${rootProject.ext.checkstyleReportsDir}')
-
-}
-/*
-By not declaring source or sourceSet Gradle will default to the
-project sourcesets and create new tasks for the sourcesets
- */
-pmd {
-    ignoreFailures = false
-    consoleOutput = true
-    toolVersion = '5.2.1'
-    ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
-
-    reportsDir = file('${rootProject.ext.pmdReportsDir}')
-
-}
-tasks.withType(Pmd){
-    reports {
-        xml.enabled = true
-        html.enabled = false
-    }
-}
-/*
-By not declaring source or sourceSet Gradle will default to the
-project sourcesets and create new tasks for the sourcesets
- */
-jdepend{
-    ignoreFailures = true
-    toolVersion = '2.9.1'
-
-    reportsDir = file('${rootProject.ext.jdependReportsDir}')
-
-}
-tasks.withType(JDepend){
-    reports{
-        xml.enabled = true
-        text.enabled = false
-    }
-}
-/*
-By not declaring source or sourceSet Gradle will default to the
-project sourcesets and create new tasks for the sourcesets
- */
-findbugs {
-    ignoreFailures = true
-    toolVersion = '3.0.0'
-    effort = 'max'
-    reportLevel = 'high'
-    reportsDir = file('${rootProject.ext.findbugsReportsDir')
-}
-tasks.withType(FindBugs){
-    excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
-
-}
 
 
 
