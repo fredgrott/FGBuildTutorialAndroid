@@ -5,6 +5,7 @@ apply plugin: 'loglifecycle'
 apply plugin: 'checkstyle'
 apply plugin: 'pmd'
 apply plugin: 'jdepend'
+apply plugin: 'findbugs'
 
 
 /*
@@ -356,36 +357,30 @@ project.afterEvaluate {
     }
 }
 
-    /*
-    The code-quality plugins that come with gradle are already set to
-    execute in dependence of the check anchor task and read the sourceSets of
-    product with or without variants correctly. Thus, we put them here to
-    differentiate from any other no default code-quality checks you may have.
-
-    If we define our code-quality tasks as a clone of tasks than we
-    we do not get access to properties set in the TaskExtension
-    such as reportsDir and sourceSets?
-     */
+/*
+By not declaring source or sourceSet Gradle will default to the
+project sourcesets and create new tasks for the sourcesets
+ */
 checkstyle {
     ignoreFailures = false
     showViolations = true
     toolVersion = '6.1'
-    // do we need to change this back to
-    // ${project.projectDir}/config/checkstyle/checkstyle.xml?
+
     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
-    // do we assume that project.sourceSets matches android.sourceSets?
-    // if so than we can elimate this line as checks plugins default to
-    // sourceSets = project.sourceSets if not set
+
 
     reportsDir = file('${rootProject.ext.checkstyleReportsDir}')
 
 }
-
+/*
+By not declaring source or sourceSet Gradle will default to the
+project sourcesets and create new tasks for the sourcesets
+ */
 pmd {
     ignoreFailures = false
     consoleOutput = true
     toolVersion = '5.2.1'
-    ruleSets = ["basic", "braces", "strings", "android", "junit"]
+    ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
 
     reportsDir = file('${rootProject.ext.pmdReportsDir}')
 
@@ -396,6 +391,10 @@ tasks.withType(Pmd){
         html.enabled = false
     }
 }
+/*
+By not declaring source or sourceSet Gradle will default to the
+project sourcesets and create new tasks for the sourcesets
+ */
 jdepend{
     ignoreFailures = true
     toolVersion = '2.9.1'
@@ -409,7 +408,21 @@ tasks.withType(JDepend){
         text.enabled = false
     }
 }
+/*
+By not declaring source or sourceSet Gradle will default to the
+project sourcesets and create new tasks for the sourcesets
+ */
+findbugs {
+    ignoreFailures = true
+    toolVersion = '3.0.0'
+    effort = 'max'
+    reportLevel = 'high'
+    reportsDir = file('${rootProject.ext.findbugsReportsDir')
+}
+tasks.withType(FindBugs){
+    excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
 
+}
 
 
 
@@ -422,6 +435,7 @@ configurations{
     jdepend
     androidJacocoAgent
     androidJacocoAnt
+    findbugs
 }
 
 
@@ -436,6 +450,7 @@ dependencies {
     jdepend rootProject.ext.codeqajdependant
     androidJacocoAgent rootProject.ext.codeqajacoco
     androidJacocoAnt rootProject.ext.codeqajacocoant
+    findbugs rootProject.ext.codeqafindbugs
 
 
     compile rootProject.ext.retrofit

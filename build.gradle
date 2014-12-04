@@ -69,7 +69,16 @@ which will put the aggregation of module reports in rootProject.buildDir/our-rep
 
  */
 
+apply plugin: 'build-dashboard'
 
+buildDashboard{
+    //task will not be defined yet as to why this does not work
+    //aggregate checkstyleMain, pmdMain, jdependMain, findbugsMain
+
+}
+reporting {
+    baseDir '$buildDir/buildDashboard'
+}
 
 
 
@@ -180,7 +189,7 @@ ext {
     codeqajdepend = 'jdepend:jdepend:2.9.1'
     codeqajdependant = 'org.apache.ant:ant-depend:1.8.2'
     codeqajavancss = 'org.codehaus.javancss:javancss:33.54'
-    ccodeqafindbugs = 'com.google.code.findbugs:findbugs:3.0.0'
+    codeqafindbugs = 'com.google.code.findbugs:findbugs:3.0.0'
     codeqajacoco = 'org.jacoco:org.jacoco.agent:0.7.2.201409121644'
     codeqajacocoant = 'org.jacoco:org.jacoco.ant:0.7.2.201409121644'
 
