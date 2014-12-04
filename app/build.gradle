@@ -311,6 +311,8 @@ project.afterEvaluate {
                 //okay this does not work
                 // sourceSet.what?compile
                 //classesDir = sourceSet.allJava.compile
+                //workaround:
+                // classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
                 reports {
                     xml.enabled = true
                     xml.destination = file('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.xml')
@@ -326,6 +328,9 @@ project.afterEvaluate {
                 reportLevel = 'high'
                 // classes fileTree(sourceSet.output.classesDir)
                 //classpath = sourceSet.compileClasspath
+                //workaround:
+                // classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+                // classpath = files()
                 reports {
                     xml.destination = file('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
                 }
