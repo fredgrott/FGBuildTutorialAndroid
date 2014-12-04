@@ -21,7 +21,7 @@ ext {
     ourProjectName = 'BasicApp'
     ourProjectLead = 'Fred Grott'
     ourProjectDescription = 'basic app showing build script with app source code'
-    javadocFooter = "Copyright 2014-$rootProject.ext.reportBuildDate by $project.ext.ourProjectLead Apache License 2.0"
+    //javadocFooter = "Copyright 2014-${rootProject.ext.reportBuildDate} by $project.ext.ourProjectLead Apache License 2.0"
 }
 
 
@@ -283,11 +283,30 @@ project.afterEvaluate {
     android.applicationVariants.all { variant ->
 
         //rename apk file  block
-        variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
-                project.ext.ourProjectName + "_"
-                        + variant.buildType.name + "_"
-                        + android.defaultConfig.versionCode + "_"
-                        + android.defaultConfig.versionName + ".apk")
+        // modified from:
+        // https://code.google.com/p/android/issues/detail?id=79123
+        // per Nick's(VokalInteractive) example
+        // Nick's code did not account for productFlavors[0] being null
+        // and the other use cases..mine covers all use cases
+            if (variant.productFlavors[0] == null){
+                variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
+                        project.ext.ourProjectName + "_"
+                                + variant.buildType.name + "_"
+                                + android.defaultConfig.versionCode + "_"
+                                + android.defaultConfig.versionName + ".apk")
+            }else{
+                variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
+                        project.ext.ourProjectName + "_"
+                                + variant.productFlavors[0].name + "_"
+                                + variant.buildType.name + "_"
+                                + variant.mergedFlavor.versionCode + "_"
+                                + variant.mergedFlavor.versionName + ".apk")
+            }
+
+
+
+
+
         // copy apk block
         if (variant.name in archiveVariant) {
             def taskSuffix = variant.buildType.name.capitalize()
@@ -335,7 +354,7 @@ project.afterEvaluate {
                 memberLevel = JavadocMemberLevel.PROTECTED
                 author = true
                 header = project.ext.ourProjectName
-                footer = project.ext.javadocFooter
+                footer = "Copyright 2014-$rootProject.ext.reportBuildDate by $project.ext.ourProjectLead Apache License 2.0"
                 linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference')
                 stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
 

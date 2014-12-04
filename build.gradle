@@ -70,6 +70,9 @@ which will put the aggregation of module reports in rootProject.buildDir/our-rep
  */
 
 apply plugin: 'build-dashboard'
+// I get rootProject.ext does nto exist errors if
+// enabled
+//apply plugin: 'android-reporting'
 
 buildDashboard{
     //task will not be defined yet as to why this does not work
