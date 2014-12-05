@@ -273,35 +273,40 @@ project.afterEvaluate {
     android.sourceSets.each { sourceSet ->
 
 
-        task("checkstyle${sourceSet.name.capitalize()}", type: Checkstyle){
-
-            description = 'completes checkstyle checks for $sourceSet.name.capitalize()'
-            group = 'verification'
-            ignoreFailures = false
-            showViolations = true
-            source = sourceSet
-            configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
 
 
+            task("checkstyle${sourceSet.name.capitalize()}", type: Checkstyle){
 
-            reports {
-                xml.destination = file('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.xml')
+                description = 'completes checkstyle checks for $sourceSet.name.capitalize()'
+                group = 'verification'
+                ignoreFailures = false
+                showViolations = true
+                source = files('src/${sourceSet}/java')
+                configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+
+                reports {
+                    xml.destination = file('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.xml')
+                }
             }
-        }
+            task("pmd${sourceSet.name.capitalize()}", type: Pmd){
+                description = 'completes pmd checks for $sourceSet.name.capitalize()'
+                group = 'verification'
+                ignoreFailures = false
+                consoleOutput = true
+                ruleSets = ["basic", "braces", "strings", "android", "junit"]
 
-        task("pmd${sourceSet.name.capitalize()}", type: Pmd){
-            description = 'completes pmd checks for $sourceSet.name.capitalize()'
-            group = 'verification'
-            ignoreFailures = false
-            consoleOutput = true
-            ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
-
-            reports {
-                xml.enabled = true
-                xml.destination = file('${rootProject.ext.pmdReportsDir}/${sourceSet.name}-pmd.xml')
-                html.enabled = false
+                source = files('${project.projectDir}/src/${sourceSet}/java')
+                reports {
+                    xml.enabled = true
+                    xml.destination = file('${rootProject.ext.pmdReportsDir}/${sourceSet.name}-pmd.xml')
+                    html.enabled = false
+                }
             }
-        }
+
+
+
+
+
 
         if (sourceSet.name in jdependFindbugsSourceSet){
 
@@ -312,7 +317,7 @@ project.afterEvaluate {
                 // sourceSet.what?compile
                 //classesDir = sourceSet.allJava.compile
                 //workaround:
-                // classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+                 classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
                 reports {
                     xml.enabled = true
                     xml.destination = file('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.xml')
@@ -329,8 +334,8 @@ project.afterEvaluate {
                 // classes fileTree(sourceSet.output.classesDir)
                 //classpath = sourceSet.compileClasspath
                 //workaround:
-                // classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
-                // classpath = files()
+                 classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+                 classpath = files()
                 reports {
                     xml.destination = file('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
                 }
