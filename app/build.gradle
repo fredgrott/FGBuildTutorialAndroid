@@ -275,8 +275,11 @@ project.afterEvaluate {
 
 
 
+
             task("checkstyle${sourceSet.name.capitalize()}", type: Checkstyle){
 
+                def File csXmlOutputFile = new File('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.xml')
+                def File csHtmlOutputFile = new File('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.html')
                 description = 'completes checkstyle checks for $sourceSet.name.capitalize()'
                 group = 'verification'
                 ignoreFailures = false
@@ -285,10 +288,18 @@ project.afterEvaluate {
                 configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
 
                 reports {
-                    xml.destination = file('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.xml')
+                    xml.destination = csXmlOutputFile
+                }
+                doLast{
+                    ant.xslt(in: csXmlOutputFile, style: rootProject.ext.checkstyleXslFile, out: csHtmlOutputFile)
+
                 }
             }
+        check.dependsOn("checkstyle${sourceSet.name.capitalize()}")
             task("pmd${sourceSet.name.capitalize()}", type: Pmd){
+
+                def File pdXmlOutputFile = new File('${rootProject.ext.pmdReportsDir/${sourceSet.name}-pmd.xml')
+                def File pdHtmlOutputfile = new File('${rootProject.ext.pmdReportsDir/${sourceSet.name}-pmd.html')
                 description = 'completes pmd checks for $sourceSet.name.capitalize()'
                 group = 'verification'
                 ignoreFailures = false
@@ -298,10 +309,14 @@ project.afterEvaluate {
                 source = files('${project.projectDir}/src/${sourceSet}/java')
                 reports {
                     xml.enabled = true
-                    xml.destination = file('${rootProject.ext.pmdReportsDir}/${sourceSet.name}-pmd.xml')
+                    xml.destination = pdXmlOutputFile
                     html.enabled = false
                 }
+                doLast{
+                    ant.xslt(in: pdXmlOutputFile, style: rootProject.ext.pmdXslFile, out: pdHtmlOutputfile)
+                }
             }
+        check.dependsOn("pmd${sourceSet.name.capitalize()}")
 
 
 
@@ -311,6 +326,8 @@ project.afterEvaluate {
         if (sourceSet.name in jdependFindbugsSourceSet){
 
             task("jdepend${sourceSet.name.capitalize()}", type: JDepend){
+                def File jdXmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSeet.name}-jdepend.xml')
+                def File jdHtmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.html')
                 description = 'completes jdepend ananlysis of $sourceSet.name.capitalize()'
                 group = 'verification'
                 //okay this does not work
@@ -320,12 +337,18 @@ project.afterEvaluate {
                  classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
                 reports {
                     xml.enabled = true
-                    xml.destination = file('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.xml')
+                    xml.destination = jdXmlOutputFile
                     text.enabled = false
                 }
+                doLast{
+                    ant.xslt(in: jdXmlOutputFile, style: rootProject.ext.jdependXslFile, out: jdHtmlOutputFile)
+                }
             }
+            check.dependsOn("jdepend${sourceSet.name.capitalize()}")
 
             task("findbugs${sourceSet.name.capitalize()}", type: FindBugs){
+                def File fbXmlOuputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
+                def File fbHtmlOutputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.html')
                 description = 'completes findbugs analysis of $sourceSet.name.capitalize()'
                 group = 'verification'
                 ignoreFailures = true
@@ -337,11 +360,15 @@ project.afterEvaluate {
                  classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
                  classpath = files()
                 reports {
-                    xml.destination = file('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
+                    xml.destination = fbXmlOuputFile
                 }
 
                 excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
+                doLast{
+                    ant.xslt(in: fbXmlOuputFile, style: rootProject.ext.findbugsXslFile, out: fbHtmlOutputFile)
+                }
             }
+            check.dependsOn("findbugs${sourceSet.name.capitalize()}")
         }
 
 

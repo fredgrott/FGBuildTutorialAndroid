@@ -159,6 +159,11 @@ ext {
     checkstyleConfigFile = '${rootProject.ext.baseConfigDir}/checkstyle/checkstyle_checks.xml'
 
 
+    //xsl config files
+    checkstyleXslFile = '${rootProject.ext.baseConfigDir}/checkstyle/checkstyle-noframes-severity-sorted.xsl'
+    jdependXslFile = '{rootProject.ext.baseConfigDir}/jdepend/jdepend.xsl'
+    pmdXslFile = '${rootProject.ext.baseConfigDir}/pmd/pmd-nicerhtml.xsl'
+    findbugsXslFile = '${rootProject.ext.baseConfigDir}/findbugs/findbugs-html.xsl'
 
 
 
