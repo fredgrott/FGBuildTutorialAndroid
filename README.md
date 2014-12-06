@@ -7,17 +7,36 @@ can get up to speed fast and on to coding.
 
 # Architecture
 
-We have some use cases where things change from no product flavors to product flavors than
-to product flavors with flavor groups. The things changing is aspects of the apk, javadocs,
-etc such as file names,etc.  Thus, the idea is to get one block of code that handles
-all these use cases and than our build script becomes two major components that for most
-cases can be copied for all our uses.
+## 1.0.x (android gradle plugin versions)
 
-Project modules app and library are single developer mode build scripts in that they
-have certain single developer project assumptions. For projects with multiple developers
-and having access to a continuous build integration server you would remove the
-automatic jarring of the release doc,zip of docs, and the zipping of the release and
-proguard mapping files and archiving them at the subfolder archive at project root folder.
+1. The Android Gradle Plugin does not load the full set of java plugins. Effects are that your codeqa
+   plugins that are default with gradle DO NOT auto-generate per sourceSets and thus you
+   are forced to dynamically create them. Also, its an android sourceSet who's underlying
+   API is not yet fully aligned with the Gradle Java sourceSet API as of yet for
+   android gradle plugin versions 1.0.x.
+
+2. DSL for things like sourceSets, etc is still undocumented in certain places.
+
+Thus, my best best practices guesses when in undocumented areas was to search
+Google for notes from some recognized Google Engineers that happen to be on
+the Android Tools dev team.
+
+THE MOST STABLE BLOCK
+
+Obviously, the android block is the most stable with next-to-almost no guesses
+thus other than minor plugin version changes that andorid block will stay
+somewhat the same across android gradle minor plugin version.
+
+THE INTERMEDIATE STABLE BLOCK
+
+The project.afterEvaluate block is where my best guesses are contained. The guesses are
+constrained with some groovy to prevent a full-blown blow-up when we run into
+dsl changes via the android gradle plugin minor versions. Meaning,
+every once-in-awhile you might have to change something but not too much.
+
+
+## 1.1.x (android gradle plugin versions)
+
 
 
 # License

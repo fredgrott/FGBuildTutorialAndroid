@@ -325,50 +325,64 @@ project.afterEvaluate {
 
         if (sourceSet.name in jdependFindbugsSourceSet){
 
-            task("jdepend${sourceSet.name.capitalize()}", type: JDepend){
-                def File jdXmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSeet.name}-jdepend.xml')
-                def File jdHtmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.html')
-                description = 'completes jdepend ananlysis of $sourceSet.name.capitalize()'
-                group = 'verification'
-                //okay this does not work
-                // sourceSet.what?compile
-                //classesDir = sourceSet.allJava.compile
-                //workaround:
-                 classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
-                reports {
-                    xml.enabled = true
-                    xml.destination = jdXmlOutputFile
-                    text.enabled = false
-                }
-                doLast{
-                    ant.xslt(in: jdXmlOutputFile, style: rootProject.ext.jdependXslFile, out: jdHtmlOutputFile)
-                }
-            }
-            check.dependsOn("jdepend${sourceSet.name.capitalize()}")
 
-            task("findbugs${sourceSet.name.capitalize()}", type: FindBugs){
-                def File fbXmlOuputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
-                def File fbHtmlOutputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.html')
-                description = 'completes findbugs analysis of $sourceSet.name.capitalize()'
-                group = 'verification'
-                ignoreFailures = true
-                effort = 'max'
-                reportLevel = 'high'
-                // classes fileTree(sourceSet.output.classesDir)
-                //classpath = sourceSet.compileClasspath
-                //workaround:
-                 classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
-                 classpath = files()
-                reports {
-                    xml.destination = fbXmlOuputFile
-                }
 
-                excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
-                doLast{
-                    ant.xslt(in: fbXmlOuputFile, style: rootProject.ext.findbugsXslFile, out: fbHtmlOutputFile)
+            //Okay, time to hack and cheat
+            //basically, check to see if the sourceSet.name classesDir exists
+            //reason for hack: as of android gradle 1.0 plugin version
+            //Google has not fully moved to using the new Gradle SourceSet model just yet
+            //and thus we do not have sourceSet.output etc, hence the hack
+            def sourceSetOutputDir = new File('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+
+            if (sourceSetOutputDir.exists()){
+
+                task("jdepend${sourceSet.name.capitalize()}", type: JDepend){
+                    def File jdXmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSeet.name}-jdepend.xml')
+                    def File jdHtmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.html')
+                    description = 'completes jdepend ananlysis of $sourceSet.name.capitalize()'
+                    group = 'verification'
+                    //okay this does not work
+                    // sourceSet.what?compile
+                    //classesDir = sourceSet.allJava.compile
+                    //workaround:
+                    classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+                    reports {
+                        xml.enabled = true
+                        xml.destination = jdXmlOutputFile
+                        text.enabled = false
+                    }
+                    doLast{
+                        ant.xslt(in: jdXmlOutputFile, style: rootProject.ext.jdependXslFile, out: jdHtmlOutputFile)
+                    }
                 }
+                check.dependsOn("jdepend${sourceSet.name.capitalize()}")
+                task("findbugs${sourceSet.name.capitalize()}", type: FindBugs){
+                    def File fbXmlOuputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
+                    def File fbHtmlOutputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.html')
+                    description = 'completes findbugs analysis of $sourceSet.name.capitalize()'
+                    group = 'verification'
+                    ignoreFailures = true
+                    effort = 'max'
+                    reportLevel = 'high'
+                    // classes fileTree(sourceSet.output.classesDir)
+                    //classpath = sourceSet.compileClasspath
+                    //workaround:
+                    classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+                    classpath = files()
+                    reports {
+                        xml.destination = fbXmlOuputFile
+                    }
+
+                    excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
+                    doLast{
+                        ant.xslt(in: fbXmlOuputFile, style: rootProject.ext.findbugsXslFile, out: fbHtmlOutputFile)
+                    }
+                }
+                check.dependsOn("findbugs${sourceSet.name.capitalize()}")
             }
-            check.dependsOn("findbugs${sourceSet.name.capitalize()}")
+
+
+
         }
 
 
@@ -385,18 +399,33 @@ project.afterEvaluate {
         // Nick's code did not account for productFlavors[0] being null
         // and the other use cases..mine covers all use cases
             if (variant.productFlavors[0] == null){
-                variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
-                        project.ext.ourProjectName + "_"
-                                + variant.buildType.name + "_"
-                                + android.defaultConfig.versionCode + "_"
-                                + android.defaultConfig.versionName + ".apk")
+                //we need to wrap this to check for is output null and
+                //to check that we have an .apk file to rename
+                //as we do not rename library aar's
+                def oldFile = variant.outputs[0].outputFile
+                if (oldFile !=null){
+                    if (oldFile.name.endsWith('.apk')){
+                        variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
+                                project.ext.ourProjectName + "_"
+                                        + variant.buildType.name + "_"
+                                        + android.defaultConfig.versionCode + "_"
+                                        + android.defaultConfig.versionName + ".apk")
+                    }
+                }
+
             }else{
-                variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
-                        project.ext.ourProjectName + "_"
-                                + variant.productFlavors[0].name + "_"
-                                + variant.buildType.name + "_"
-                                + variant.mergedFlavor.versionCode + "_"
-                                + variant.mergedFlavor.versionName + ".apk")
+                def oldFile = variant.outputs[0].outputFile
+                if (oldFile != null){
+                    if (oldFile.name.endsWith('.apk')){
+                        variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
+                                project.ext.ourProjectName + "_"
+                                        + variant.productFlavors[0].name + "_"
+                                        + variant.buildType.name + "_"
+                                        + variant.mergedFlavor.versionCode + "_"
+                                        + variant.mergedFlavor.versionName + ".apk")
+                    }
+                }
+                
             }
 
 
