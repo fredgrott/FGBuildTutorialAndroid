@@ -18,7 +18,13 @@ apply plugin: 'findbugs'
   reflect our project.ext stuff defined below.
  */
 ext {
-    ourProjectName = 'BasicApp'
+
+
+
+    //a little groovy syntax sugar and some gradle knowledge gives a nice
+    //human style project name rather than default IDE/gradle app name
+    ourProjectName = '${rootProject.projectDir.name}'+ '${project.name.capitalize()}'
+
     ourProjectLead = 'Fred Grott'
     ourProjectDescription = 'basic app showing build script with app source code'
     //javadocFooter = "Copyright 2014-${rootProject.ext.reportBuildDate} by $project.ext.ourProjectLead Apache License 2.0"
@@ -265,26 +271,33 @@ I believe it goes before because after android.applicationVariants is called you
 can no longer modify the android app model.
  */
 project.afterEvaluate {
-    def archiveVariant = ["release", "debug"]
+    /*
+    We need some way to sort of automatically dynamically create the
+    archiveAPK/Copy tasks, javadoc tasks, and codeqa tasks for the
+    sourceSets and variants that actually have files.
 
-    def jdependFindbugsSourceSet = ['release', 'main']
+    This is a hack to manually set it up that way as I am not expert
+    enough in groovy and android gradle plugin internals to do it another way.
+    */
+    def archiveVariant = ["release", "debug"]
+    def javadocVariant = ['debug']
+
+    def checkstylePmdSourceSet = ['main', 'androidTest']
+    def jdependFindbugsSourceSet = ['main']
 
 
     android.sourceSets.each { sourceSet ->
 
-
-
-
-
+        if (sourceSet.name in checkstylePmdSourceSet){
             task("checkstyle${sourceSet.name.capitalize()}", type: Checkstyle){
 
-                def File csXmlOutputFile = new File('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.xml')
-                def File csHtmlOutputFile = new File('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.html')
+                def  csXmlOutputFile = new File('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.xml')
+                def  csHtmlOutputFile = new File('${rootProject.ext.checkstyleReportsDir}/${sourceSet.name}-checkstyle.html')
                 description = 'completes checkstyle checks for $sourceSet.name.capitalize()'
                 group = 'verification'
                 ignoreFailures = false
                 showViolations = true
-                source = files('src/${sourceSet}/java')
+                source = 'src/${sourceSet.name}/java'
                 configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
 
                 reports {
@@ -295,18 +308,18 @@ project.afterEvaluate {
 
                 }
             }
-        check.dependsOn("checkstyle${sourceSet.name.capitalize()}")
+            check.dependsOn("checkstyle${sourceSet.name.capitalize()}")
             task("pmd${sourceSet.name.capitalize()}", type: Pmd){
 
-                def File pdXmlOutputFile = new File('${rootProject.ext.pmdReportsDir/${sourceSet.name}-pmd.xml')
-                def File pdHtmlOutputfile = new File('${rootProject.ext.pmdReportsDir/${sourceSet.name}-pmd.html')
+                def  pdXmlOutputFile = new File('${rootProject.ext.pmdReportsDir/${sourceSet.name}-pmd.xml')
+                def  pdHtmlOutputfile = new File('${rootProject.ext.pmdReportsDir/${sourceSet.name}-pmd.html')
                 description = 'completes pmd checks for $sourceSet.name.capitalize()'
                 group = 'verification'
                 ignoreFailures = false
                 consoleOutput = true
                 ruleSets = ["basic", "braces", "strings", "android", "junit"]
 
-                source = files('${project.projectDir}/src/${sourceSet}/java')
+                source = 'src/${sourceSet.name}/java'
                 reports {
                     xml.enabled = true
                     xml.destination = pdXmlOutputFile
@@ -316,75 +329,56 @@ project.afterEvaluate {
                     ant.xslt(in: pdXmlOutputFile, style: rootProject.ext.pmdXslFile, out: pdHtmlOutputfile)
                 }
             }
-        check.dependsOn("pmd${sourceSet.name.capitalize()}")
-
-
-
-
-
-
-        if (sourceSet.name in jdependFindbugsSourceSet){
-
-
-
-            //Okay, time to hack and cheat
-            //basically, check to see if the sourceSet.name classesDir exists
-            //reason for hack: as of android gradle 1.0 plugin version
-            //Google has not fully moved to using the new Gradle SourceSet model just yet
-            //and thus we do not have sourceSet.output etc, hence the hack
-            def sourceSetOutputDir = new File('${project.buildDir}/intermediates/classes/${sourceSet.name}')
-
-            if (sourceSetOutputDir.exists()){
-
-                task("jdepend${sourceSet.name.capitalize()}", type: JDepend){
-                    def File jdXmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSeet.name}-jdepend.xml')
-                    def File jdHtmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.html')
-                    description = 'completes jdepend ananlysis of $sourceSet.name.capitalize()'
-                    group = 'verification'
-                    //okay this does not work
-                    // sourceSet.what?compile
-                    //classesDir = sourceSet.allJava.compile
-                    //workaround:
-                    classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
-                    reports {
-                        xml.enabled = true
-                        xml.destination = jdXmlOutputFile
-                        text.enabled = false
-                    }
-                    doLast{
-                        ant.xslt(in: jdXmlOutputFile, style: rootProject.ext.jdependXslFile, out: jdHtmlOutputFile)
-                    }
-                }
-                check.dependsOn("jdepend${sourceSet.name.capitalize()}")
-                task("findbugs${sourceSet.name.capitalize()}", type: FindBugs){
-                    def File fbXmlOuputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
-                    def File fbHtmlOutputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.html')
-                    description = 'completes findbugs analysis of $sourceSet.name.capitalize()'
-                    group = 'verification'
-                    ignoreFailures = true
-                    effort = 'max'
-                    reportLevel = 'high'
-                    // classes fileTree(sourceSet.output.classesDir)
-                    //classpath = sourceSet.compileClasspath
-                    //workaround:
-                    classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
-                    classpath = files()
-                    reports {
-                        xml.destination = fbXmlOuputFile
-                    }
-
-                    excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
-                    doLast{
-                        ant.xslt(in: fbXmlOuputFile, style: rootProject.ext.findbugsXslFile, out: fbHtmlOutputFile)
-                    }
-                }
-                check.dependsOn("findbugs${sourceSet.name.capitalize()}")
-            }
-
-
+            check.dependsOn("pmd${sourceSet.name.capitalize()}")
 
         }
 
+        if (sourceSet.name in jdependFindbugsSourceSet){
+            task("jdepend${sourceSet.name.capitalize()}", type: JDepend){
+                def  jdXmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSeet.name}-jdepend.xml')
+                def  jdHtmlOutputFile = new File('${rootProject.ext.jdependReportsDir}/${sourceSet.name}-jdepend.html')
+                description = 'completes jdepend ananlysis of $sourceSet.name.capitalize()'
+                group = 'verification'
+                //okay this does not work
+                // sourceSet.what?compile
+                //classesDir = sourceSet.allJava.compile
+                //workaround:
+                classesDir = file('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+                reports {
+                    xml.enabled = true
+                    xml.destination = jdXmlOutputFile
+                    text.enabled = false
+                }
+                doLast{
+                    ant.xslt(in: jdXmlOutputFile, style: rootProject.ext.jdependXslFile, out: jdHtmlOutputFile)
+                }
+            }
+            check.dependsOn("jdepend${sourceSet.name.capitalize()}")
+            task("findbugs${sourceSet.name.capitalize()}", type: FindBugs){
+                def  fbXmlOuputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.xml')
+                def  fbHtmlOutputFile = new File('${rootProject.ext.findbugsReportsDir}/${sourceSet.name}-findbugs.html')
+                description = 'completes findbugs analysis of $sourceSet.name.capitalize()'
+                group = 'verification'
+                ignoreFailures = true
+                effort = 'max'
+                reportLevel = 'high'
+                // classes fileTree(sourceSet.output.classesDir)
+                //classpath = sourceSet.compileClasspath
+                //workaround:
+                classes = files('${project.buildDir}/intermediates/classes/${sourceSet.name}')
+                classpath = files()
+                reports {
+                    xml.destination = fbXmlOuputFile
+                }
+
+                excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
+                doLast{
+                    ant.xslt(in: fbXmlOuputFile, style: rootProject.ext.findbugsXslFile, out: fbHtmlOutputFile)
+                }
+            }
+            check.dependsOn("findbugs${sourceSet.name.capitalize()}")
+
+        }
 
     }
 
@@ -425,7 +419,7 @@ project.afterEvaluate {
                                         + variant.mergedFlavor.versionName + ".apk")
                     }
                 }
-                
+
             }
 
 
@@ -457,45 +451,46 @@ project.afterEvaluate {
             }
 
         }
-        // dynamic javadoc task setup, no automatic hooks
-        // by variant as we grab our sourceSet via variants
-        task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-            description = 'Javadoc of $variant.name'
-            group = 'documentaion'
-            // When JavaBase plugin loads it only sets two javadocs, title and destinationDir
-            // thus if we need different we need to set it ourselves
-            title = "$project.ext.ourProjectName $android.defaultConfig.versionCode $android.defaultConfig.versionName API"
-            // I do not think JavaBase plugin sets docsDir as I was getting symbol not resolved
-            destinationDir = new File("${rootProject.ext.buildDocsBaseDir}/${variant.name}/javadoc")
-            source = variant.javaCompile.source
-            def myAndroidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-            def myGooglePlayServicesJar = "${android.sdkDirectory}/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"
-            classpath = files(variant.javaCompile.classpath.files, myAndroidJar, myGooglePlayServicesJar)
-            exclude '**/BuildConfig.java'
-            exclude '**/R.java'
-            options {
-                docTitle = "Generated Javadoc for $project.ext.ourProjectName for $variant.name"
-                windowTitle = "javadoc:$variant.name"
-                memberLevel = JavadocMemberLevel.PROTECTED
-                author = true
-                header = project.ext.ourProjectName
-                footer = "Copyright 2014-$rootProject.ext.reportBuildDate by $project.ext.ourProjectLead Apache License 2.0"
-                linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference')
-                stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
 
-            }
-            doLast {
-                copy {
+        if (variant.name in javadocVariant){
+            // dynamic javadoc task setup, no automatic hooks
+            // by variant as we grab our sourceSet via variants
+            task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+                description = 'Javadoc of $variant.name'
+                group = 'documentaion'
+                // When JavaBase plugin loads it only sets two javadocs, title and destinationDir
+                // thus if we need different we need to set it ourselves
+                title = "$project.ext.ourProjectName $android.defaultConfig.versionCode $android.defaultConfig.versionName API"
+                // I do not think JavaBase plugin sets docsDir as I was getting symbol not resolved
+                destinationDir = new File("${rootProject.ext.buildDocsBaseDir}/${variant.name}/javadoc")
+                source = variant.javaCompile.source
+                def myAndroidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+                def myGooglePlayServicesJar = "${android.sdkDirectory}/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"
+                classpath = files(variant.javaCompile.classpath.files, myAndroidJar, myGooglePlayServicesJar)
+                exclude '**/BuildConfig.java'
+                exclude '**/R.java'
+                options {
+                    docTitle = "Generated Javadoc for $project.ext.ourProjectName for $variant.name"
+                    windowTitle = "javadoc:$variant.name"
+                    memberLevel = JavadocMemberLevel.PROTECTED
+                    author = true
+                    header = project.ext.ourProjectName
+                    footer = "Copyright 2014-$rootProject.ext.reportBuildDate by $project.ext.ourProjectLead Apache License 2.0"
+                    linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference')
+                    stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
 
-                    from "${project.buildDir}/docs/${variant.name}/javadoc"
-                    into "${rootProject.projectDir}/archive/docs/${variant.name}/${android.defau8ltConfig.versionCode}/javadoc"
                 }
+                doLast {
+                    copy {
+
+                        from "${project.buildDir}/docs/${variant.name}/javadoc"
+                        into "${rootProject.projectDir}/archive/docs/${variant.name}/${android.defau8ltConfig.versionCode}/javadoc"
+                    }
+                }
+
             }
 
         }
-
-
-
 
 
     }

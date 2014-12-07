@@ -38,7 +38,7 @@ buildscript {
     // specific to android application development
     dependencies {
 
-        classpath 'com.android.tools.build:gradle:1.0.0-rc2'
+        classpath 'com.android.tools.build:gradle:1.0.0-rc4'
         // debug log plugin
         classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
         // spoon-gradle plugin for debugging, has a configuration block
@@ -70,16 +70,17 @@ which will put the aggregation of module reports in rootProject.buildDir/our-rep
  */
 
 apply plugin: 'build-dashboard'
+//apply plugin: 'android-reporting'
 // I get rootProject.ext does nto exist errors if
 // enabled
-// apply plugin: 'android-reporting'
+//apply plugin: 'android-reporting'
 
 buildDashboard{
     
 
 }
 reporting {
-    baseDir = '$buildDir/buildDashboard'
+    baseDir = 'build/buildDashboard'
 }
 
 
@@ -141,6 +142,8 @@ ext {
     buildDocsBaseDir = '${project.buildDir}/${project.ext.buildDocsDirName}'
 
     testOptionsResultsDir = '${rootProject.ext.buildreportsBaseDir}/androidTest-results'
+    //android gradle plugin default is project.buildIr/ouputs
+    // but the better approach is to put in reports/lintReports
     lintReportsDir = '${rootProject.ext.buildReportsBaseDir}/lintReports'
     // javadoc scheme is baseDir/sourceSetName/javadoc
     javadocBaseDir = '${rootProject.ext.buildDocsBaseDir}'
