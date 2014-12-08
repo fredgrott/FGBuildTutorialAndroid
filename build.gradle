@@ -80,6 +80,10 @@ buildDashboard{
 
 }
 reporting {
+    // not sure why its this way instead of
+    // ${rootProject.projectDir}/buildDashboard
+    // as that produces a folder at root with
+    // no vars expansion
     baseDir = 'build/buildDashboard'
 }
 
