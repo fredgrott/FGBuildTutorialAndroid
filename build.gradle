@@ -298,4 +298,5 @@ allprojects {
     }
 }
 // from commandline in root folder: gradle deviceCheck mergeAndroidReports --continue
+// this plugin has to be declared at the bottom
 apply plugin: 'android-reporting'
