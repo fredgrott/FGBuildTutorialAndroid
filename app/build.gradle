@@ -59,6 +59,7 @@ android {
     build.gradle file
      */
 
+
     testOptions {
         resultsDir = rootProject.ext.testOptionsResultsDir
 
@@ -328,4 +329,15 @@ dependencies {
 /*
 Codeqa and Javadocs accounting for sourceSets and productFlavors is pain-in-the-ass
 for android gradle plugin versions 1.x.
+
+Codeqa:
+         project.sourceSets still has things empty due to the switch from a
+         gradle internal class to the new gradle sourceSet model that involves native.
+         Thus, we hack/cheat in that we specify src as soruce with include/exclude so
+         that all sourceSets that have source get checked. Findbugs and Jdepend
+         get constrained to main SourceSet only.
+
+Javadoc:
+         We use an array to manually constrain javadoc task generation to only those
+         variants that have sources.
  */

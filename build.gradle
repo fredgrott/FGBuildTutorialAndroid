@@ -297,3 +297,5 @@ allprojects {
         jcenter()
     }
 }
+// from commandline in root folder: gradle deviceCheck mergeAndroidReports --continue
+apply plugin: 'android-reporting'
