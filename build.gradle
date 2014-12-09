@@ -54,38 +54,6 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-/*
- If we have multiple projects and we want an aggregation of all reports generated via the
- reporting interface than we do:
-
- apply plugin: 'build-dashboard'
-
- reporting {
-    baseDir "$buildDir/our-reports"
-}
-
-
-which will put the aggregation of module reports in rootProject.buildDir/our-reports.
-
- */
-
-apply plugin: 'build-dashboard'
-//apply plugin: 'android-reporting'
-// I get rootProject.ext does nto exist errors if
-// enabled
-//apply plugin: 'android-reporting'
-
-buildDashboard{
-    
-
-}
-reporting {
-    // not sure why its this way instead of
-    // ${rootProject.projectDir}/buildDashboard
-    // as that produces a folder at root with
-    // no vars expansion
-    baseDir = 'build/buildDashboard'
-}
 
 
 
@@ -167,6 +135,7 @@ ext {
     jdependXslFile = '{rootProject.ext.baseConfigDir}/jdepend/jdepend.xsl'
     pmdXslFile = '${rootProject.ext.baseConfigDir}/pmd/pmd-nicerhtml.xsl'
     findbugsXslFile = '${rootProject.ext.baseConfigDir}/findbugs/findbugs-html.xsl'
+
 
 
 
@@ -271,6 +240,23 @@ ext {
 
 
 
+    //google services deps
+    googleplus = 'com.google.android.gms:play-services-plus:6.5.+'
+    googleaccountlogin = 'com.google.android.gms:play-services-identity:6.5.+'
+    googleactivityrecognition = 'com.google.android.gms:play-services-location:6.5.+'
+    googleappindexing = 'com.google.android.gms:play-services-appindexing:6.5.+'
+    googlecast = 'com.google.android.gms:play-services-cast:6.5.+'
+    googledrive = 'com.google.android.gms:play-services-drive:6.5.+'
+    googlefit = 'com.google.android.gms:play-services-fitness:6.5.+'
+    googlemaps = 'com.google.android.gms:play-services-ads:6.5.+'
+    googlemobileads = 'com.google.android.gms:play-services-ads:6.5.+'
+    googlepanoramaviewer = 'com.google.android.gms:play-services-panorama:6.5.+'
+    googleplaygameservices = 'com.google.android.gms:play-services-games:6.5.+'
+    googlewallet = 'com.google.android.gms:play-services-wallet:6.5.+'
+    androidwear = 'com.google.android.gms:play-services-wearable:6.5.+'
+    googleactionsanalyticscloudmessaging = 'com.google.android.gms:play-services-base:6.5.+'
+
+
 
 
 
@@ -300,3 +286,17 @@ allprojects {
 // from commandline in root folder: gradle deviceCheck mergeAndroidReports --continue
 // this plugin has to be declared at the bottom
 apply plugin: 'android-reporting'
+apply plugin: 'build-dashboard'
+
+
+buildDashboard{
+
+
+}
+reporting {
+    // not sure why its this way instead of
+    // ${rootProject.projectDir}/buildDashboard
+    // as that produces a folder at root with
+    // no vars expansion
+    baseDir = 'build/buildDashboard'
+}
