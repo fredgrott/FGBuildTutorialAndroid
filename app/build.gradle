@@ -30,6 +30,7 @@ ext {
     //javadocFooter = "Copyright 2014-${rootProject.ext.reportBuildDate} by $project.ext.ourProjectLead Apache License 2.0"
 
     archiveVariant = ['debug','release']
+    javadocVariant = ['debug']
 }
 
 
@@ -341,3 +342,113 @@ Javadoc:
          We use an array to manually constrain javadoc task generation to only those
          variants that have sources.
  */
+
+android.applicationVariants.all { variant ->
+
+    //rename apk file  block
+    // modified from:
+    // https://code.google.com/p/android/issues/detail?id=79123
+    // per Nick's(VokalInteractive) example
+    // Nick's code did not account for productFlavors[0] being null
+    // and the other use cases..mine covers all use cases
+    if (variant.productFlavors[0] == null){
+        //we need to wrap this to check for is output null and
+        //to check that we have an .apk file to rename
+        //as we do not rename library aar's
+        def oldFile = variant.outputs[0].outputFile
+        if (oldFile !=null){
+            if (oldFile.name.endsWith('.apk')){
+                variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
+                        project.ext.ourProjectName + "_"
+                                + variant.buildType.name + "_"
+                                + android.defaultConfig.versionCode + "_"
+                                + android.defaultConfig.versionName + ".apk")
+            }
+        }
+
+    }else{
+        def oldFile = variant.outputs[0].outputFile
+        if (oldFile != null){
+            if (oldFile.name.endsWith('.apk')){
+                variant.outputs[0].outputFile = new File(variant.outputs[0].outputFile.parent,
+                        project.ext.ourProjectName + "_"
+                                + variant.productFlavors[0].name + "_"
+                                + variant.buildType.name + "_"
+                                + variant.mergedFlavor.versionCode + "_"
+                                + variant.mergedFlavor.versionName + ".apk")
+            }
+        }
+
+    }
+
+    // copy apk block
+    if (variant.name in archiveVariant) {
+        def taskSuffix = variant.buildType.name.capitalize()
+        def version = "${android.defaultConfig.versionCode}(${android.defaultConfig.versionName})"
+        def destination = "${rootProject.projectDir}/archive/apks/${project.ext.ourProjectName}/${variant.name}/${version}"
+        def assembleTaskName = "assemble${taskSuffix}"
+        if (tasks.findByName(assembleTaskName)) {
+            def copyAPKTask = tasks.create(name: "archive${taskSuffix}", type: Copy) {
+                description "Archive/copy apk and proguard mappings.txt to a versioned folder."
+                from("${buildDir}") {
+                    include "**/proguard/${variant.buildType.name}/mapping.txt"
+                    include "**/apk/${variant.outputs[0].outputFile.name}"
+                }
+                into destination
+                eachFile { file ->
+                    file.path = file.name // to get flat copy
+
+                }
+                includeEmptyDirs = false
+
+            }
+            tasks[assembleTaskName].finalizedBy = [copyAPKTask]
+        }
+
+    }
+
+    //javadoc
+    if (variant.name in javadocVariant){
+        // dynamic javadoc task setup, no automatic hooks
+        // by variant as we grab our sourceSet via variants
+        task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+            description = 'Javadoc of $variant.name'
+            group = 'documentaion'
+            // When JavaBase plugin loads it only sets two javadocs, title and destinationDir
+            // thus if we need different we need to set it ourselves
+            title = "$project.ext.ourProjectName $android.defaultConfig.versionCode $android.defaultConfig.versionName API"
+            // I do not think JavaBase plugin sets docsDir as I was getting symbol not resolved
+            destinationDir = new File("${rootProject.ext.buildDocsBaseDir}/${variant.name}/javadoc")
+            source = variant.javaCompile.source
+            def myAndroidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+            def myGooglePlayServicesJar = "${android.sdkDirectory}/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"
+            classpath = files(variant.javaCompile.classpath.files, myAndroidJar, myGooglePlayServicesJar)
+            exclude '**/BuildConfig.java'
+            exclude '**/R.java'
+            options {
+                docTitle = "Generated Javadoc for $project.ext.ourProjectName for $variant.name"
+                windowTitle = "javadoc:$variant.name"
+                memberLevel = JavadocMemberLevel.PROTECTED
+                author = true
+                header = project.ext.ourProjectName
+                footer = "Copyright 2014-$rootProject.ext.reportBuildDate by $project.ext.ourProjectLead Apache License 2.0"
+                linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference')
+                stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
+
+            }
+            doLast {
+                copy {
+
+                    from "${project.buildDir}/docs/${variant.name}/javadoc"
+                    into "${rootProject.projectDir}/archive/docs/${variant.name}/${android.defaultConfig.versionCode}/javadoc"
+                }
+            }
+
+        }
+
+    }
+
+
+}
+
+
