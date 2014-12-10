@@ -168,9 +168,9 @@ ext {
     //our codeqa deps
     codeqaclassycle = 'org.specs2:classycle:1.4.3'
     codeqacheckstyle = 'com.puppycrawl.tools:checkstyle:5.7'
-    codeqapmd = 'net.sourceforge.pmd:pmd-java:5.1.1'
+    codeqapmd = 'net.sourceforge.pmd:pmd:5.1.1'
     codeqajdepend = 'jdepend:jdepend:2.9.1'
-    codeqajdependant = 'org.apache.ant:ant-depend:1.8.2'
+    codeqajdependant = 'org.apache.ant:ant-jdepend:1.8.2'
     codeqajavancss = 'org.codehaus.javancss:javancss:33.54'
     codeqafindbugs = 'com.google.code.findbugs:findbugs:3.0.0'
     codeqajacoco = 'org.jacoco:org.jacoco.agent:0.7.2.201409121644'

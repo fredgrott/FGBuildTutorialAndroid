@@ -490,7 +490,7 @@ task pmdAllVariants(type:Pmd){
     ignoreFailures = false
     consoleOutput = true
 
-    ruleSets = ["basic", "braces", "strings", "android", "junit"]
+    ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
 
     source = 'src'
     include '**/*.java'
