@@ -451,4 +451,96 @@ android.applicationVariants.all { variant ->
 
 }
 
+/*
+CodeQA: We cheat and use folder locations and include/exclude to make sure
+the variants are chosen.
+ */
+task checkstyleAllVariants(type: Checkstyle){
+    description = 'Analyzes all variants using checkstyle checks'
+    group = 'verification'
 
+    ignoreFailures = false
+    showViolations = true
+
+    //we set source as src so as to include all variants, hence the AllVariants in the TaskName
+    source = 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    // empty classpath
+    classpath = files()
+
+    // need to correct checks file
+    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle_checks.xml")
+
+    reports {
+        xml.destination = 'build/reports/checkstyle'
+    }
+
+
+}
+check.dependsOn("checkstyleAllVariants")
+
+task pmdAllVariants(type:Pmd){
+    description = 'completes pmd checks for all variants'
+    group = 'verification'
+
+
+
+    ignoreFailures = false
+    consoleOutput = true
+
+    ruleSets = ["basic", "braces", "strings", "android", "junit"]
+
+    source = 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+
+
+
+    reports {
+        xml.enabled = true
+        xml.destination = 'build/reports/pmd/pmd.xml'
+        html.enabled = true
+        html.destination = 'build/reports/pmd/pmd.html'
+    }
+
+}
+
+check.dependsOn("pmdAllVariants")
+
+task jdependMain(type:JDepend){
+    description = 'completes jdepend analysis on main sourceset'
+    group = 'verification'
+
+
+    classesDir = file('build/intermediates/classes/debug')
+
+    // only can be one output..ie either or
+    reports {
+        xml.enabled = true
+        xml.destination = 'build/reports/jdepend/jdepend.xml'
+        text.enabled = false
+    }
+
+}
+check.dependsOn("jdependMain")
+
+task findbugsMain(type:FindBugs){
+    description = 'completes findbugs analysis of themain sourceset'
+    group = 'verification'
+
+
+    classes = files('build/intermediates/classes/debug')
+    classpath = files()
+
+    excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
+
+    reports {
+        xml.enabled = true
+        xml.destination = 'build/reports/findbugs/findbugs.xml'
+    }
+
+}
+check.dependsOn("findbugsMain")
