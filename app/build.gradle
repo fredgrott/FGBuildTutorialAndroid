@@ -474,7 +474,8 @@ task checkstyleAllVariants(type: Checkstyle){
     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle_checks.xml")
 
     reports {
-        xml.destination = 'build/reports/checkstyle'
+        xml.enabled = true
+        xml.destination = 'build/reports/checkstyle/checkstyle.xml'
     }
 
 
