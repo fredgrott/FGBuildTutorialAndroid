@@ -120,7 +120,7 @@ ext {
     // javadoc scheme is baseDir/sourceSetName/javadoc
     javadocBaseDir = '${rootProject.ext.buildDocsBaseDir}'
     // scheme for codeqa reports dirs is baseReportsDir/codeqaname/sourceSetname
-    checkstyleReportsDir = '${rootProject.ext.buildReportsBaseDir}/checkstyle'
+    checkstyleReportsDir = '${project.buildDir}/reports/checkstyle'
     jdependReportsDir = '${rootProject.ext.buildReportsBaseDir}/jdepend'
     pmdReportsDir = '${rootProject.ext.buildReportsBaseDir}/pmd'
     findbugsReportsDir = '${rootProject.ext.buildReportsBaseDir}/findbugs'

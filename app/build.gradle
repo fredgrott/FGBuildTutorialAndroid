@@ -268,6 +268,7 @@ configurations{
     androidJacocoAgent
     androidJacocoAnt
     findbugs
+    classycle
 }
 
 
@@ -283,6 +284,7 @@ dependencies {
     androidJacocoAgent rootProject.ext.codeqajacoco
     androidJacocoAnt rootProject.ext.codeqajacocoant
     findbugs rootProject.ext.codeqafindbugs
+    classycle rootProject.ext.codeqaclassycle
 
 
     compile rootProject.ext.retrofit
@@ -459,6 +461,11 @@ task checkstyleAllVariants(type: Checkstyle){
     description = 'Analyzes all variants using checkstyle checks'
     group = 'verification'
 
+    def csXmlOutputFile = new File("build/reports/checkstyle/checkstyle.xml")
+    def csHtmlOutputFile = new File("build/reports/checkstyle/checkstyle.html")
+
+    //we can use annotation of SuppressWarning('checkstyle:rule') to
+    //ignore certain violations hence this setting to false
     ignoreFailures = false
     showViolations = true
 
@@ -471,11 +478,19 @@ task checkstyleAllVariants(type: Checkstyle){
     classpath = files()
 
     // need to correct checks file
-    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle_checks.xml")
+    configFile = file("${rootProject.projectDir}/config/checkstyle/android_checkstyle_5_7_checks.xml")
 
     reports {
         xml.enabled = true
-        xml.destination = 'build/reports/checkstyle/checkstyle.xml'
+        xml.destination = csXmlOutputFile
+    }
+
+    doLast{
+        if (csXmlOutputFile != null && csXmlOutputFile.exists()){
+            ant.xslt(in: csXmlOutputFile, style: '../config/checkstyle/checkstyle-noframes-severity-sorted.xsl', out: csHtmlOutputFile)
+
+        }
+
     }
 
 
@@ -486,9 +501,11 @@ task pmdAllVariants(type:Pmd){
     description = 'completes pmd checks for all variants'
     group = 'verification'
 
+    def pdXmlOutputFile = new File("build/reports/pmd/pmd.xml")
+    def pdHtmlOutputFile = new File("build/reports/pmd/pmd.html")
 
-
-    ignoreFailures = false
+    //we assume that NOPMD comment might not be enabled through gradle ant builder for this task
+    ignoreFailures = true
     consoleOutput = true
 
     ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
@@ -502,10 +519,19 @@ task pmdAllVariants(type:Pmd){
 
     reports {
         xml.enabled = true
-        xml.destination = 'build/reports/pmd/pmd.xml'
-        html.enabled = true
-        html.destination = 'build/reports/pmd/pmd.html'
+        xml.destination = pdXmlOutputFile
+        html.enabled = false
+
     }
+
+    doLast{
+        if (pdXmlOutputFile != null && pdXmlOutputFile.exists()){
+            ant.xslt(in: pdXmlOutputFile, style: '../config/pmd/pmd-nicerhtml.xsl', out: pdHtmlOutputFile)
+        }
+
+    }
+
+
 
 }
 
@@ -515,15 +541,22 @@ task jdependMain(type:JDepend){
     description = 'completes jdepend analysis on main sourceset'
     group = 'verification'
 
+    def jdXmlOutputFile = new File("build/reports/jdepend/jdepend.xml")
+    def jdHtmlOutputFile = new File("build/reports/jdepend/jdepend.html")
 
     classesDir = file('build/intermediates/classes/debug')
 
     // only can be one output..ie either or
     reports {
         xml.enabled = true
-        xml.destination = 'build/reports/jdepend/jdepend.xml'
+        xml.destination = jdXmlOutputFile
         text.enabled = false
     }
+
+    doLast{
+        ant.xslt(in: jdXmlOutputFile, style: '../config/jdepend/jdepend.xsl', out: jdHtmlOutputFile)
+    }
+
 
 }
 check.dependsOn("jdependMain")
@@ -532,6 +565,8 @@ task findbugsMain(type:FindBugs){
     description = 'completes findbugs analysis of themain sourceset'
     group = 'verification'
 
+    def fbXmlOutputFile = new File("build/reports/findbugs/findbugs.xml")
+    def fbHtmlOutputFile = new File("build/reports/findbugs/findbugs.html")
 
     classes = files('build/intermediates/classes/debug')
     classpath = files()
@@ -540,8 +575,17 @@ task findbugsMain(type:FindBugs){
 
     reports {
         xml.enabled = true
-        xml.destination = 'build/reports/findbugs/findbugs.xml'
+        xml.destination = fbXmlOutputFile
+    }
+
+    doLast{
+        if (fbXmlOutputFile != null && fbXmlOutputFile.exists()){
+
+            ant.xslt(in: fbXmlOutputFile, style: '../config/findbugs/findbugs-html.xsl', out: fbHtmlOutputFile)
+
+        }
     }
 
 }
 check.dependsOn("findbugsMain")
+
