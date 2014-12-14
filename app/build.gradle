@@ -217,11 +217,11 @@ android {
         // if true, generate an XML report for use by for example Jenkins
         xmlReport false
         // file to write report to (if not specified, defaults to lint-results.xml)
-        xmlOutput file("${rootProject.ext.lintReportsDir}/lint-report.xml")
+        xmlOutput file("build/reports/lint/lint-report.xml")
         // if true, generate an HTML report (with issue explanations, sourcecode, etc)
         htmlReport true
         // optional path to report (default will be lint-results.html in the builddir)
-        htmlOutput file("${rootProject.ext.lintReportsDir}/lint-report.html")
+        htmlOutput file("build/reports/lint/lint-report.html")
 
         // set to true to have all release builds run lint on issues with severity=fatal
         // and abort the build (controlled by abortOnError above) if fatal issues are found
@@ -267,7 +267,6 @@ configurations{
     jdepend
     androidJacocoAgent
     androidJacocoAnt
-    findbugs
     javancss
 
 }
@@ -284,7 +283,7 @@ dependencies {
     jdepend rootProject.ext.codeqajdependant
     androidJacocoAgent rootProject.ext.codeqajacoco
     androidJacocoAnt rootProject.ext.codeqajacocoant
-    findbugs rootProject.ext.codeqafindbugs
+
     javancss rootProject.ext.codeqajavancss
 
 
@@ -570,33 +569,7 @@ task jdependMain(type:JDepend){
 }
 check.dependsOn("jdependMain")
 
-task findbugsMain(type:FindBugs){
-    description = 'completes findbugs analysis of themain sourceset'
-    group = 'verification'
 
-    def fbXmlOutputFile = new File("build/reports/findbugs/findbugs.xml")
-    def fbHtmlOutputFile = new File("build/reports/findbugs/findbugs.html")
-
-    classes = files('build/intermediates/classes/debug')
-    classpath = files()
-
-    excludeFilter = file('${rootProject.ext.baseConfigDir}/findbugs/findbugs-filter.xml')
-
-    reports {
-        xml.enabled = true
-        xml.destination = fbXmlOutputFile
-    }
-
-    doLast{
-        if (fbXmlOutputFile != null && fbXmlOutputFile.exists()){
-
-            ant.xslt(in: fbXmlOutputFile, style: '../config/findbugs/findbugs-html.xsl', out: fbHtmlOutputFile)
-
-        }
-    }
-
-}
-check.dependsOn("findbugsMain")
 
 /*
 javancssMain: Tied to one sourceSet, main, as I cannot fathom any use cases

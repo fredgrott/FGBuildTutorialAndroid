@@ -2,4 +2,5 @@
     <issue id="InvalidPackage">
         <ignore regexp=".*okio.*" />
     </issue>
+
 </lint>
