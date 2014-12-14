@@ -147,7 +147,7 @@ ext {
        in the android gradle plugins.
      */
     ourCompileSdkVersion = 21
-    ourBuildToolsVersion = '21.1.1'
+    ourBuildToolsVersion = '21.1.2'
 
     ourMinSdkVersion = 14
     ourTargetSdkVersion = 21

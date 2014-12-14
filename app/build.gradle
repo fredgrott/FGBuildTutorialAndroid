@@ -544,6 +544,8 @@ task jdependMain(type:JDepend){
     def jdXmlOutputFile = new File("build/reports/jdepend/jdepend.xml")
     def jdHtmlOutputFile = new File("build/reports/jdepend/jdepend.html")
 
+
+    // find way to exclude R.class
     classesDir = file('build/intermediates/classes/debug')
 
     // only can be one output..ie either or
@@ -554,7 +556,10 @@ task jdependMain(type:JDepend){
     }
 
     doLast{
-        ant.xslt(in: jdXmlOutputFile, style: '../config/jdepend/jdepend.xsl', out: jdHtmlOutputFile)
+        if (jdXmlOutputFile != null && jdXmlOutputFile.exists()){
+            ant.xslt(in: jdXmlOutputFile, style: '../config/jdepend/jdepend.xsl', out: jdHtmlOutputFile)
+        }
+
     }
 
 
