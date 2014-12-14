@@ -596,23 +596,29 @@ task findbugsMain(type:FindBugs){
 }
 check.dependsOn("findbugsMain")
 
-task javancssAllVariants  {
+task javancssMain  {
 
 
-    def jsXmlOutputFile = new File('build/reports/javancss/javancss.xml')
-    def jsHtmlOutputFile = new File('build/reports/javancss/javancss.html')
+    def jsReportsDir = new File("$project.buildDir/reports/javancss")
+    jsReportsDir.mkdirs()
 
-    ant {
-        taskdef name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath
-        javancss srcdir:'src',  generateReport:true, outputfile:jsXmlOutputFile, format:'xml'
-    }
+    def jsXmlOutputFile = new File("$project.buildDir/reports/javancss/javancss.xml")
+    def jsHtmlOutputFile = new File("$project.buildDir/reports/javancss/javancss.html")
+
+    ant.taskdef(name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath)
+    ant.javancss(srcdir:'src/main/java', generateReport:true, outputfile: jsXmlOutputFile, format:'xml')
+
+
 
     doLast{
-        if (jsXmlOutputFile != null && jsXmlOutputFile.exists()){
 
+        if (jsXmlOutputFile != null && jsXmlOutputFile.exists()){
             ant.xslt(in: jsXmlOutputFile, style: '../config/javancss/javancss2html.xsl',out: jsHtmlOutputFile)
+
         }
+
+
     }
 }
 
-check.dependsOn('javancssAllVariants')
+check.dependsOn('javancssMain')
