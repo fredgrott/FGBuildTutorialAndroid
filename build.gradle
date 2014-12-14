@@ -286,17 +286,20 @@ allprojects {
 // from commandline in root folder: gradle deviceCheck mergeAndroidReports --continue
 // this plugin has to be declared at the bottom
 apply plugin: 'android-reporting'
-apply plugin: 'build-dashboard'
+
+//Not all the codeqa stuff I use is gradle-ized android-ized yet so
+//the build-dashboard for now is not much of use.
+//apply plugin: 'build-dashboard'
 
 
-buildDashboard{
+//buildDashboard{
 
 
-}
-reporting {
+//}
+//reporting {
     // not sure why its this way instead of
     // ${rootProject.projectDir}/buildDashboard
     // as that produces a folder at root with
     // no vars expansion
-    baseDir = 'build/buildDashboard'
-}
+   // baseDir = 'build/buildDashboard'
+//}

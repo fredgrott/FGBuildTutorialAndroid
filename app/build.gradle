@@ -557,10 +557,12 @@ task jdependMain(type:JDepend){
         text.enabled = false
     }
 
+    // for some reason if I bracket this with if xmloutput is not null and exists
+    // file not there to see soon enough in the doLast bracket
     doLast{
-        if (jdXmlOutputFile != null && jdXmlOutputFile.exists()){
+
             ant.xslt(in: jdXmlOutputFile, style: '../config/jdepend/jdepend.xsl', out: jdHtmlOutputFile)
-        }
+
 
     }
 
@@ -596,6 +598,28 @@ task findbugsMain(type:FindBugs){
 }
 check.dependsOn("findbugsMain")
 
+/*
+javancssMain: Tied to one sourceSet, main, as I cannot fathom any use cases
+              where you need to collect ncss stats on androidTest, for example, or
+              any other sourceSet. If you do find a case where you need it
+              you do iteration through android.sourceSets and if else
+              bracket it and check if sourceSet is in javancssSourceSet
+              array you define up in the ext block of this build script
+              so as to only target sourceSets of interest.
+
+              Remember, when creating a custom task that is not a copy of a
+              gradle default one you have to setup your inputs correctly
+              in that the folder has to exist, etc.
+
+              DefaultsForTask:
+                      abortOnFail false
+                      generateReport false
+                      format plain
+                      packageMetrics true
+                      classMetrics true
+                      functionMetrics true
+
+ */
 task javancssMain  {
 
 
