@@ -5,7 +5,7 @@ apply plugin: 'loglifecycle'
 apply plugin: 'checkstyle'
 apply plugin: 'pmd'
 apply plugin: 'jdepend'
-apply plugin: 'findbugs'
+
 
 
 /*

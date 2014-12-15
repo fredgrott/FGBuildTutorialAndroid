@@ -113,17 +113,17 @@ ext {
     buildReportsBaseDir = '${project.buildDir}/${project.ext.buildReportsDirName}'
     buildDocsBaseDir = '${project.buildDir}/${project.ext.buildDocsDirName}'
 
-    testOptionsResultsDir = '${rootProject.ext.buildreportsBaseDir}/androidTest-results'
-    //android gradle plugin default is project.buildIr/ouputs
+    testOptionsResultsDir = 'build/reports/androidTest-results'
+    //android gradle plugin default is project.buildIr/outputs
     // but the better approach is to put in reports/lintReports
-    lintReportsDir = '${rootProject.ext.buildReportsBaseDir}/lintReports'
+    lintReportsDir = 'build/reports/lint'
     // javadoc scheme is baseDir/sourceSetName/javadoc
-    javadocBaseDir = '${rootProject.ext.buildDocsBaseDir}'
+    javadocBaseDir = 'build/docs'
     // scheme for codeqa reports dirs is baseReportsDir/codeqaname/sourceSetname
-    checkstyleReportsDir = '${project.buildDir}/reports/checkstyle'
-    jdependReportsDir = '${rootProject.ext.buildReportsBaseDir}/jdepend'
-    pmdReportsDir = '${rootProject.ext.buildReportsBaseDir}/pmd'
-    findbugsReportsDir = '${rootProject.ext.buildReportsBaseDir}/findbugs'
+    checkstyleReportsDir = 'build/reports/checkstyle'
+    jdependReportsDir = 'build/reports/jdepend'
+    pmdReportsDir = 'build/reports/pmd'
+
 
     baseConfigDir = '${rootProject.projectDir}/config'
     javadocsJDK7Stylesheet = '${rootProject.ext.baseConfigDir}/javadocs/jdk7_style_stylesheet.css'
