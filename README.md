@@ -17,7 +17,8 @@ of why you should put them together in your own build process.
 
 # Inspiration
 
-W E Deming and W Shewhart
+[W E Deming](http://en.wikipedia.org/wiki/W._Edwards_Deming) and [W Shewhart](http://en.wikipedia.org/wiki/Walter_A._Shewhart), cofathers of the QA and SPC movement in the US.
+If you have never heard of these two people, it might be a good idea to do some reading.
 
 # Usage
 
@@ -37,13 +38,44 @@ However, its not free as you have to pay for it.
 
 ## Spoon
 
+[spoon](https://github.com/stanfy/spoon-gradle-plugin)
+
+Developed by Stanfy corp.
+
+
 ## hugo
 
+[hugo](https://github.com/JakeWharton/hugo)
+
+Developed by Jake Wharton, use by annotating:
+        @DebugLog
+
+
+
 ## loglifecycle
+
+[loglifecycle](https://github.com/stephanenicolas/loglifecycle)
+
+Developed by Stephane Nicolas. Use by simply annotating activity, fragments, service, views:
+           @LogLifecycle
 
 
 
 # License
+
+Copyright 2014 Fred Grott(GrottWorkShop)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 # Credits
 

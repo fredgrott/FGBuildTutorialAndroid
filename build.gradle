@@ -166,7 +166,7 @@ ext {
     preDexLibs = !project.hasProperty('disablePreDex')
 
     //our codeqa deps
-    codeqaclassycle = 'org.specs2:classycle:1.4.3'
+    codeqaclassycle = 'org.specs2:classycle:1.4.1'
     codeqacheckstyle = 'com.puppycrawl.tools:checkstyle:5.7'
     codeqapmd = 'net.sourceforge.pmd:pmd:5.1.1'
     codeqajdepend = 'jdepend:jdepend:2.9.1'

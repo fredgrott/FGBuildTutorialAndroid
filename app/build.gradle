@@ -31,6 +31,11 @@ ext {
 
     archiveVariant = ['debug','release']
     javadocVariant = ['debug']
+    jdependVariant = ['debug']
+    classycleVariant = ['debug']
+
+    checkstyleSourceSet = ['main', 'androidTest']
+    pmdSourceSet = ['main', 'androidTest']
 }
 
 
@@ -215,7 +220,7 @@ android {
         // location to write the output; can be a file or 'stdout'
         textOutput 'stdout'
         // if true, generate an XML report for use by for example Jenkins
-        xmlReport false
+        xmlReport true
         // file to write report to (if not specified, defaults to lint-results.xml)
         xmlOutput file("build/reports/lint/lint-report.xml")
         // if true, generate an HTML report (with issue explanations, sourcecode, etc)
@@ -268,7 +273,7 @@ configurations{
     androidJacocoAgent
     androidJacocoAnt
     javancss
-
+    classycle
 }
 
 
@@ -283,7 +288,7 @@ dependencies {
     jdepend rootProject.ext.codeqajdependant
     androidJacocoAgent rootProject.ext.codeqajacoco
     androidJacocoAnt rootProject.ext.codeqajacocoant
-
+    classycle rootProject.ext.codeqaclassycle
     javancss rootProject.ext.codeqajavancss
 
 
@@ -452,8 +457,14 @@ android.applicationVariants.all { variant ->
     }
 
 
+
+
 }
 
+//Separate into cs and pd via android.sourceSets and
+// jd and ce via variants
+// with arrays to manually choose which ones get
+// dynamically created
 /*
 CodeQA: We cheat and use folder locations and include/exclude to make sure
 the variants are chosen.
@@ -594,7 +605,8 @@ javancssMain: Tied to one sourceSet, main, as I cannot fathom any use cases
 
  */
 task javancssMain  {
-
+    description = 'completes javancss analysis'
+    group = 'verification'
 
     def jsReportsDir = new File("$project.buildDir/reports/javancss")
     jsReportsDir.mkdirs()
@@ -619,3 +631,28 @@ task javancssMain  {
 }
 
 check.dependsOn('javancssMain')
+
+
+//task classycleMain {
+
+   // description = 'completes classycle analysis'
+  //  group = 'verification'
+
+ //   def ceReportsDir = new File('build/reports/classycle')
+ //   ceReportsDir.mkdirs()
+ //   copy {
+ //       from '../config/classycle/images'
+ //       into 'build/reports/classycle/images'
+ //       include '**/*.png'
+ //   }
+  //  ant.taskdef(name:'classycleReport', classname: 'classycle.ant.ReportTask', classpath: configurations.classycle.asPath)
+  //  ant.classycleReport(reportFile:'build/reports/classycle/classycle.xml'){
+  //      fileset(dir:'build/intermediates/classes/debug')
+ //   }
+ //   doLast{
+ //       ant.xslt(in:'build/reports/classycle/classycle.xml', style:'../config/classycle/reportXMLtoHTML.xsl', out:'build/reports/classycle/classycle.html')
+ //   }
+
+//}
+
+//check.dependsOn("classyclemain")
