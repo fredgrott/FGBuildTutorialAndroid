@@ -44,7 +44,7 @@ buildscript {
         // spoon-gradle plugin for debugging, has a configuration block
         classpath 'com.stanfy.spoon:spoon-gradle-plugin:0.14.1'
         //loglifecycle plugin
-        classpath 'com.github.stephanenicolas.loglifecycle:loglifecycle-plugin:1.0.3'
+       // classpath 'com.github.stephanenicolas.loglifecycle:loglifecycle-plugin:1.0.3'
         //bintray for library projects
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5'
 
@@ -166,7 +166,7 @@ ext {
     preDexLibs = !project.hasProperty('disablePreDex')
 
     //our codeqa deps
-    codeqaclassycle = 'org.specs2:classycle:1.4.1'
+    codeqaclassycle = 'org.specs2:classycle:1.4'
     codeqacheckstyle = 'com.puppycrawl.tools:checkstyle:5.7'
     codeqapmd = 'net.sourceforge.pmd:pmd:5.1.1'
     codeqajdepend = 'jdepend:jdepend:2.9.1'

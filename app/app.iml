@@ -100,7 +100,6 @@
     <orderEntry type="library" exported="" scope="TEST" name="hamcrest-library-1.1" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="espresso-1.1-r3" level="project" />
     <orderEntry type="library" exported="" name="hugo-annotations-1.1.0" level="project" />
-    <orderEntry type="library" exported="" name="loglifecycle-annotations-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="okhttp-2.0.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="support-annotations-20.0.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="dexmaker-1.0" level="project" />

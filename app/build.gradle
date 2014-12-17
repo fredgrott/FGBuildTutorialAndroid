@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'spoon'
 apply plugin: 'hugo'
-apply plugin: 'loglifecycle'
+//apply plugin: 'loglifecycle'
 apply plugin: 'checkstyle'
 apply plugin: 'pmd'
 apply plugin: 'jdepend'
@@ -30,12 +30,9 @@ ext {
     //javadocFooter = "Copyright 2014-${rootProject.ext.reportBuildDate} by $project.ext.ourProjectLead Apache License 2.0"
 
     archiveVariant = ['debug','release']
-    javadocVariant = ['debug']
-    jdependVariant = ['debug']
-    classycleVariant = ['debug']
+    javadocVariant = ['release']
 
-    checkstyleSourceSet = ['main', 'androidTest']
-    pmdSourceSet = ['main', 'androidTest']
+
 }
 
 
@@ -273,7 +270,7 @@ configurations{
     androidJacocoAgent
     androidJacocoAnt
     javancss
-    classycle
+
 }
 
 
@@ -288,7 +285,7 @@ dependencies {
     jdepend rootProject.ext.codeqajdependant
     androidJacocoAgent rootProject.ext.codeqajacoco
     androidJacocoAnt rootProject.ext.codeqajacocoant
-    classycle rootProject.ext.codeqaclassycle
+
     javancss rootProject.ext.codeqajavancss
 
 
@@ -459,6 +456,8 @@ android.applicationVariants.all { variant ->
 
 
 
+
+
 }
 
 //Separate into cs and pd via android.sourceSets and
@@ -473,8 +472,8 @@ task checkstyleAllVariants(type: Checkstyle){
     description = 'Analyzes all variants using checkstyle checks'
     group = 'verification'
 
-    def csXmlOutputFile = new File("build/reports/checkstyle/checkstyle.xml")
-    def csHtmlOutputFile = new File("build/reports/checkstyle/checkstyle.html")
+    def csXmlOutputFile = new File("build/reports/checkstyle/checkstyle-allvariants.xml")
+    def csHtmlOutputFile = new File("build/reports/checkstyle/checkstyle-allvariants.html")
 
     //we can use annotation of SuppressWarning('checkstyle:rule') to
     //ignore certain violations hence this setting to false
@@ -513,8 +512,8 @@ task pmdAllVariants(type:Pmd){
     description = 'completes pmd checks for all variants'
     group = 'verification'
 
-    def pdXmlOutputFile = new File("build/reports/pmd/pmd.xml")
-    def pdHtmlOutputFile = new File("build/reports/pmd/pmd.html")
+    def pdXmlOutputFile = new File("build/reports/pmd/pmd-allvariants.xml")
+    def pdHtmlOutputFile = new File("build/reports/pmd/pmd-allvariants.html")
 
     //we assume that NOPMD comment might not be enabled through gradle ant builder for this task
     ignoreFailures = true
@@ -553,8 +552,8 @@ task jdependMain(type:JDepend){
     description = 'completes jdepend analysis on main sourceset'
     group = 'verification'
 
-    def jdXmlOutputFile = new File("build/reports/jdepend/jdepend.xml")
-    def jdHtmlOutputFile = new File("build/reports/jdepend/jdepend.html")
+    def jdXmlOutputFile = new File("build/reports/jdepend/jdepend-debug.xml")
+    def jdHtmlOutputFile = new File("build/reports/jdepend/jdepend-debug.html")
 
 
     // find way to exclude R.class
@@ -611,48 +610,51 @@ task javancssMain  {
     def jsReportsDir = new File("$project.buildDir/reports/javancss")
     jsReportsDir.mkdirs()
 
-    def jsXmlOutputFile = new File("$project.buildDir/reports/javancss/javancss.xml")
-    def jsHtmlOutputFile = new File("$project.buildDir/reports/javancss/javancss.html")
+    def jsXmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-main.xml")
+    def jsHtmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-main.html")
 
     ant.taskdef(name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath)
     ant.javancss(srcdir:'src/main/java', generateReport:true, outputfile: jsXmlOutputFile, format:'xml')
 
 
 
-    doLast{
-
-        if (jsXmlOutputFile != null && jsXmlOutputFile.exists()){
-            ant.xslt(in: jsXmlOutputFile, style: '../config/javancss/javancss2html.xsl',out: jsHtmlOutputFile)
-
-        }
 
 
-    }
+
+    ant.xslt(in: jsXmlOutputFile, style: '../config/javancss/javancss2html.xsl',out: jsHtmlOutputFile)
+
+
+
+
+
 }
 
 check.dependsOn('javancssMain')
 
+task javancssAndroidTest {
+    description = 'completes javancss analysis'
+    group = 'verification'
 
-//task classycleMain {
+    def jsReportsDir = new File("$project.buildDir/reports/javancss")
+    jsReportsDir.mkdirs()
 
-   // description = 'completes classycle analysis'
-  //  group = 'verification'
+    def jsXmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-androidTest.xml")
+    def jsHtmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-androidTest.html")
 
- //   def ceReportsDir = new File('build/reports/classycle')
- //   ceReportsDir.mkdirs()
- //   copy {
- //       from '../config/classycle/images'
- //       into 'build/reports/classycle/images'
- //       include '**/*.png'
- //   }
-  //  ant.taskdef(name:'classycleReport', classname: 'classycle.ant.ReportTask', classpath: configurations.classycle.asPath)
-  //  ant.classycleReport(reportFile:'build/reports/classycle/classycle.xml'){
-  //      fileset(dir:'build/intermediates/classes/debug')
- //   }
- //   doLast{
- //       ant.xslt(in:'build/reports/classycle/classycle.xml', style:'../config/classycle/reportXMLtoHTML.xsl', out:'build/reports/classycle/classycle.html')
- //   }
+    ant.taskdef(name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath)
+    ant.javancss(srcdir:'src/androidTest/java', generateReport:true, outputfile: jsXmlOutputFile, format:'xml')
 
-//}
 
-//check.dependsOn("classyclemain")
+
+
+
+
+    ant.xslt(in: jsXmlOutputFile, style: '../config/javancss/javancss2html.xsl',out: jsHtmlOutputFile)
+
+
+
+
+
+}
+
+check.dependsOn("javancssAndroidTest")
