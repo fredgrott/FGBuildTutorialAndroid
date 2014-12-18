@@ -32,6 +32,24 @@ ext {
     archiveVariant = ['debug','release']
     javadocVariant = ['release']
 
+    jdependMainXmlOutput = 'build/reports/jdepend/jdepend-main.xml'
+    jdependMainHtmlOutput = 'build/reports/jdepend/jdepend-main.html'
+    checkstyleAllVariantsXmlOutput = 'build/reports/checkstyle/checkstyle-allvariants.xml'
+    checkstyleAllVariantsHtmlOutput = 'build/reports/checkstyle/checkstyle-allvariants.html'
+    pmdAllVariantsXmlOutput = 'build/reports/pmd/pmd-allvariants.xml'
+    pmdAllVariantsHtmlOutput = 'build/reports/pmd/pmd-allvariants.html'
+    javancssMainXmlOutput = 'build/reports/javancss/javancss-main.xml'
+    javancssMainHtmlOutput = 'build/reports/javancss/javancss-main.html'
+    javancssAndroidTestXmlOutput = 'build/reports/javancss/javancss-androidTest.xml'
+    javancssAndroidTestHtmlOutput = 'build/reports/javancss/javancss-androidTest.html'
+
+    jdependXslFile = '../config/jdepend/jdepend.xsl'
+    checkstyleXslFile = '../config/checkstyle/checkstyle-noframes-severity-sorted.xsl'
+    pmdXslFile = '../config/pmd/pmd-nicerhtml.xsl'
+    javancssXslFile = '../config/javancss/javancss2html.xsl'
+
+    checkstyleChecksFile = '../config/checkstyle/android_checkstyle_5_7_checks.xml'
+
 
 }
 
