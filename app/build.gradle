@@ -487,31 +487,22 @@ android.applicationVariants.all { variant ->
 
 
 }
-/*
-We set any jdepend tasks we up dynamically in  a DAG coding block
-so that the task is only executed on existence of specific tasks.
-JDepend tasks are the only ones set up this as they depend on
-a specific compile task executing as we are collecting jdepend
-analysis from a specific sourceSet class output.
-*/
-gradle.taskGraph.whenReady {taskGraph ->
-    if (taskGraph.hasTask(compileDebugJava)){
-        tasks.create(name:"jdependAntDebugMain"){
-            description = 'completes jdepend analysis of main sourceset'
-            group = 'verification'
 
-            ant.taskdef(name:'jdependreport', classname:'org.apache.tools.ant.taskdefs.optional.jdepend.JDependTask', classpath: configurations.jdepend.asPath)
-            ant.jdependreport(outputfile: jdependMainXmlOutput, format: 'xml'){
-                exclude(name:'**/R.*')
-                classespath{
-                    pathElement(location: 'build/intermediates/classes/debug')
-                }
-            }
-            ant.xslt(in:jdependMainXmlOutput, style:jdependXslFile, out:jdependMainHtmlOutput)
+
+task jdependDebugMain{
+    description = 'completes jdepend analysis of main sourceset'
+    group = 'verification'
+
+    ant.taskdef(name:'jdependreport', classname:'org.apache.tools.ant.taskdefs.optional.jdepend.JDependTask', classpath: configurations.jdepend.asPath)
+    ant.jdependreport(outputfile: jdependMainXmlOutput, format: 'xml'){
+        exclude(name:'**/R.*')
+        classespath{
+            pathElement(location: 'build/intermediates/classes/debug')
         }
-        check.dependsOn("jdependAntDebugMain")
     }
+    ant.xslt(in:jdependMainXmlOutput, style:jdependXslFile, out:jdependMainHtmlOutput)
 }
+check.dependsOn("jdependDebugMain")
 
 task checkstyleMain(type:Checkstyle) {
 
