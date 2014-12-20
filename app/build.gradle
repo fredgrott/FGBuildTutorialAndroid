@@ -34,10 +34,20 @@ ext {
 
     jdependMainXmlOutput = 'build/reports/jdepend/jdepend-main.xml'
     jdependMainHtmlOutput = 'build/reports/jdepend/jdepend-main.html'
-    checkstyleAllVariantsXmlOutput = 'build/reports/checkstyle/checkstyle-allvariants.xml'
-    checkstyleAllVariantsHtmlOutput = 'build/reports/checkstyle/checkstyle-allvariants.html'
-    pmdAllVariantsXmlOutput = 'build/reports/pmd/pmd-allvariants.xml'
-    pmdAllVariantsHtmlOutput = 'build/reports/pmd/pmd-allvariants.html'
+
+
+    checkstyleMainXmlOutput = 'build/reports/checkstyle/checkstyle-main.xml'
+    checkstyleMainHtmlOutput = 'build/reports/checkstyle/checkstyle-main.html'
+    checkstyleAndroidTestXmlOutput = 'build/reports/checkstyle/checkstyle-androidtest.xml'
+    checkstyleAndroidTestHtmlOutput = 'build/reports/checkstyle/checkstyle-androditest.html'
+
+    pmdMainXmlOutput = 'build/reports/pmd/pmd-main.xml'
+    pmdMainHtmlOutput = 'build/reports/pmd/pmd-main.html'
+    pmdAndroidTestXmlOutput = 'build/reports/pmd/pmd-androidtest.xml'
+    pmdAndroidTestHtmlOutput = 'build/reports/pmd/pmd-androidtest.html'
+
+
+
     javancssMainXmlOutput = 'build/reports/javancss/javancss-main.xml'
     javancssMainHtmlOutput = 'build/reports/javancss/javancss-main.html'
     javancssAndroidTestXmlOutput = 'build/reports/javancss/javancss-androidTest.xml'
@@ -477,61 +487,120 @@ android.applicationVariants.all { variant ->
 
 
 }
-
-//Separate into cs and pd via android.sourceSets and
-// jd and ce via variants
-// with arrays to manually choose which ones get
-// dynamically created
 /*
-CodeQA: We cheat and use folder locations and include/exclude to make sure
-the variants are chosen.
- */
-task checkstyleAllVariants(type: Checkstyle){
-    description = 'Analyzes all variants using checkstyle checks'
-    group = 'verification'
+We set any jdepend tasks we up dynamically in  a DAG coding block
+so that the task is only executed on existence of specific tasks.
+JDepend tasks are the only ones set up this as they depend on
+a specific compile task executing as we are collecting jdepend
+analysis from a specific sourceSet class output.
+*/
+gradle.taskGraph.whenReady {taskGraph ->
+    if (taskGraph.hasTask(compileDebugJava)){
+        tasks.create(name:"jdependAntDebugMain"){
+            description = 'completes jdepend analysis of main sourceset'
+            group = 'verification'
 
-    def csXmlOutputFile = new File("build/reports/checkstyle/checkstyle-allvariants.xml")
-    def csHtmlOutputFile = new File("build/reports/checkstyle/checkstyle-allvariants.html")
+            ant.taskdef(name:'jdependreport', classname:'org.apache.tools.ant.taskdefs.optional.jdepend.JDependTask', classpath: configurations.jdepend.asPath)
+            ant.jdependreport(outputfile: jdependMainXmlOutput, format: 'xml'){
+                exclude(name:'**/R.*')
+                classespath{
+                    pathElement(location: 'build/intermediates/classes/debug')
+                }
+            }
+            ant.xslt(in:jdependMainXmlOutput, style:jdependXslFile, out:jdependMainHtmlOutput)
+        }
+        check.dependsOn("jdependAntDebugMain")
+    }
+}
+
+task checkstyleMain(type:Checkstyle) {
+
+    description = 'performs checkstyle checks on main sourceSet'
+    group = 'verififcation'
 
     //we can use annotation of SuppressWarning('checkstyle:rule') to
     //ignore certain violations hence this setting to false
     ignoreFailures = false
     showViolations = true
 
-    //we set source as src so as to include all variants, hence the AllVariants in the TaskName
-    source = 'src'
+    //we want the main sourceSet only
+    source = 'src/main/java'
     include '**/*.java'
-    exclude '**/gen/**'
 
     // empty classpath
     classpath = files()
 
-    // need to correct checks file
-    configFile = file("${rootProject.projectDir}/config/checkstyle/android_checkstyle_5_7_checks.xml")
+    configFile = file(checkstyleXslFile)
+
+    reports{
+        xml.enabled = true
+        xml.destination = checkstyleMainXmlOutput
+    }
+    doLast{
+
+        ant.xslt(in:checkstyleMainXmlOutput, style:checkstyleXslFile, out:checkstyleMainHtmlOutput)
+    }
+
+}
+check.dependsOn("checkstyleMain")
+
+task checkstyleAndroidTest(type:Checkstyle){
+    description = 'performs checkstyle checks on the androidTest sourceSet'
+    group = 'verification'
+    //we can use annotation of SuppressWarning('checkstyle:rule') to
+    //ignore certain violations hence this setting to false
+    ignoreFailures = false
+    showViolations = true
+
+    //we want the androidTest sourceSet only
+    source = 'src/androidTest/java'
+    include '**/*.java'
+
+    // empty classpath
+    classpath = files()
+
+    configFile = file(checkstyleXslFile)
+
+    reports{
+        xml.enabled = true
+        xml.destination = checkstyleAndroidTestXmlOutput
+    }
+    doLast{
+        ant.xslt(in:checkstyleAndroidTestXmlOutput, style:checkstyleXslFile, out:checkstyleAndroidTestHtmlOutput)
+    }
+}
+check.dependsOn("checkstyleAndroidTest")
+
+task pmdMain(type:Pmd) {
+    description = 'performs pmd checks on main sourceSet'
+    group = 'verification'
+    //we assume that NOPMD comment might not be enabled through gradle ant builder for this task
+    ignoreFailures = true
+    consoleOutput = true
+
+    ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
+
+    source = 'src/main/java'
+    include '**/*.java'
 
     reports {
         xml.enabled = true
-        xml.destination = csXmlOutputFile
+        xml.destination = pmdMainXmlOutput
+        html.enabled = false
+
     }
 
     doLast{
-        if (csXmlOutputFile != null && csXmlOutputFile.exists()){
-            ant.xslt(in: csXmlOutputFile, style: '../config/checkstyle/checkstyle-noframes-severity-sorted.xsl', out: csHtmlOutputFile)
-
-        }
-
+        ant.xslt(in:pmdMainXmlOutput, style:pmdXslFile, out:pmdMainHtmlOutput)
     }
 
 
 }
-check.dependsOn("checkstyleAllVariants")
+check.dependsOn("pmdMain")
 
-task pmdAllVariants(type:Pmd){
-    description = 'completes pmd checks for all variants'
-    group = 'verification'
-
-    def pdXmlOutputFile = new File("build/reports/pmd/pmd-allvariants.xml")
-    def pdHtmlOutputFile = new File("build/reports/pmd/pmd-allvariants.html")
+task pmdAndroidTest(type:Pmd){
+    description = 'performs pmd checks on the AndroidTest sourceSet'
+    group = 'verififcation'
 
     //we assume that NOPMD comment might not be enabled through gradle ant builder for this task
     ignoreFailures = true
@@ -539,110 +608,47 @@ task pmdAllVariants(type:Pmd){
 
     ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
 
-    source = 'src'
+    source = 'src/androidTest/java'
     include '**/*.java'
-    exclude '**/gen/**'
-
-
-
 
     reports {
         xml.enabled = true
-        xml.destination = pdXmlOutputFile
+        xml.destination = pmdAndroidTestXmlOutput
         html.enabled = false
 
     }
 
     doLast{
-        if (pdXmlOutputFile != null && pdXmlOutputFile.exists()){
-            ant.xslt(in: pdXmlOutputFile, style: '../config/pmd/pmd-nicerhtml.xsl', out: pdHtmlOutputFile)
-        }
 
-    }
-
-
-
-}
-
-check.dependsOn("pmdAllVariants")
-
-task jdependMain(type:JDepend){
-    description = 'completes jdepend analysis on main sourceset'
-    group = 'verification'
-
-    def jdXmlOutputFile = new File("build/reports/jdepend/jdepend-debug.xml")
-    def jdHtmlOutputFile = new File("build/reports/jdepend/jdepend-debug.html")
-
-
-    // find way to exclude R.class
-    classesDir = file('build/intermediates/classes/debug')
-
-    // only can be one output..ie either or
-    reports {
-        xml.enabled = true
-        xml.destination = jdXmlOutputFile
-        text.enabled = false
-    }
-
-    // for some reason if I bracket this with if xmloutput is not null and exists
-    // file not there to see soon enough in the doLast bracket
-    doLast{
-
-            ant.xslt(in: jdXmlOutputFile, style: '../config/jdepend/jdepend.xsl', out: jdHtmlOutputFile)
-
-
+        ant.xslt(in:pmdAndroidTestXmlOutput, style:pmdXslFile, out:pmdAndroidTestHtmlOutput)
     }
 
 
 }
-check.dependsOn("jdependMain")
+check.dependsOn("pmdAndroidTest")
 
 
 
-/*
-javancssMain: Tied to one sourceSet, main, as I cannot fathom any use cases
-              where you need to collect ncss stats on androidTest, for example, or
-              any other sourceSet. If you do find a case where you need it
-              you do iteration through android.sourceSets and if else
-              bracket it and check if sourceSet is in javancssSourceSet
-              array you define up in the ext block of this build script
-              so as to only target sourceSets of interest.
 
-              Remember, when creating a custom task that is not a copy of a
-              gradle default one you have to setup your inputs correctly
-              in that the folder has to exist, etc.
 
-              DefaultsForTask:
-                      abortOnFail false
-                      generateReport false
-                      format plain
-                      packageMetrics true
-                      classMetrics true
-                      functionMetrics true
 
- */
+
+
+
+
+
 task javancssMain  {
-    description = 'completes javancss analysis'
+    description = 'completes javancss analysis on the main sourceSet'
     group = 'verification'
 
     def jsReportsDir = new File("$project.buildDir/reports/javancss")
     jsReportsDir.mkdirs()
 
-    def jsXmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-main.xml")
-    def jsHtmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-main.html")
 
     ant.taskdef(name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath)
-    ant.javancss(srcdir:'src/main/java', generateReport:true, outputfile: jsXmlOutputFile, format:'xml')
+    ant.javancss(srcdir:'src/main/java', generateReport:true, outputfile: javancssMainXmlOutput, format:'xml')
 
-
-
-
-
-
-    ant.xslt(in: jsXmlOutputFile, style: '../config/javancss/javancss2html.xsl',out: jsHtmlOutputFile)
-
-
-
+    ant.xslt(in: javancssMainXmlOutput, style: '../config/javancss/javancss2html.xsl',out: javancssMainHtmlOutput)
 
 
 }
@@ -650,27 +656,17 @@ task javancssMain  {
 check.dependsOn('javancssMain')
 
 task javancssAndroidTest {
-    description = 'completes javancss analysis'
+    description = 'completes javancss analysis of the androidTest sourceSet'
     group = 'verification'
 
     def jsReportsDir = new File("$project.buildDir/reports/javancss")
     jsReportsDir.mkdirs()
 
-    def jsXmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-androidTest.xml")
-    def jsHtmlOutputFile = new File("$project.buildDir/reports/javancss/javancss-androidTest.html")
 
     ant.taskdef(name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath)
-    ant.javancss(srcdir:'src/androidTest/java', generateReport:true, outputfile: jsXmlOutputFile, format:'xml')
+    ant.javancss(srcdir:'src/androidTest/java', generateReport:true, outputfile: javancssAndroidTestXmlOutput, format:'xml')
 
-
-
-
-
-
-    ant.xslt(in: jsXmlOutputFile, style: '../config/javancss/javancss2html.xsl',out: jsHtmlOutputFile)
-
-
-
+    ant.xslt(in: javancssAndroidTestXmlOutput, style: '../config/javancss/javancss2html.xsl',out: javancssAndroidTestHtmlOutput)
 
 
 }
