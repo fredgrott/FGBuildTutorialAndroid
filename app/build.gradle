@@ -496,6 +496,7 @@ task jdependDebugMain{
     ant.taskdef(name:'jdependreport', classname:'org.apache.tools.ant.taskdefs.optional.jdepend.JDependTask', classpath: configurations.jdepend.asPath)
     ant.jdependreport(outputfile: jdependMainXmlOutput, format: 'xml'){
         exclude(name:'**/R.*')
+        exclude(name:'android.*')
         classespath{
             pathElement(location: 'build/intermediates/classes/debug')
         }
