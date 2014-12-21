@@ -5,6 +5,7 @@ apply plugin: 'hugo'
 apply plugin: 'checkstyle'
 apply plugin: 'pmd'
 apply plugin: 'jdepend'
+apply plugin: 'findbugs'
 
 
 
@@ -39,7 +40,7 @@ ext {
     checkstyleMainXmlOutput = 'build/reports/checkstyle/checkstyle-main.xml'
     checkstyleMainHtmlOutput = 'build/reports/checkstyle/checkstyle-main.html'
     checkstyleAndroidTestXmlOutput = 'build/reports/checkstyle/checkstyle-androidtest.xml'
-    checkstyleAndroidTestHtmlOutput = 'build/reports/checkstyle/checkstyle-androditest.html'
+    checkstyleAndroidTestHtmlOutput = 'build/reports/checkstyle/checkstyle-androidtest.html'
 
     pmdMainXmlOutput = 'build/reports/pmd/pmd-main.xml'
     pmdMainHtmlOutput = 'build/reports/pmd/pmd-main.html'
@@ -47,6 +48,8 @@ ext {
     pmdAndroidTestHtmlOutput = 'build/reports/pmd/pmd-androidtest.html'
 
 
+    findbugsMainXmlOutput = 'build/reports/findbugs/findbugs-main.xml'
+    findbugsMainHtmlOuput = 'build/reports/findbugs/findbugs-main.html'
 
     javancssMainXmlOutput = 'build/reports/javancss/javancss-main.xml'
     javancssMainHtmlOutput = 'build/reports/javancss/javancss-main.html'
@@ -57,8 +60,10 @@ ext {
     checkstyleXslFile = '../config/checkstyle/checkstyle-noframes-severity-sorted.xsl'
     pmdXslFile = '../config/pmd/pmd-nicerhtml.xsl'
     javancssXslFile = '../config/javancss/javancss2html.xsl'
+    findbugsXslFile = '../config/findbugs/findbugs-html.xsl'
 
     checkstyleChecksFile = '../config/checkstyle/android_checkstyle_5_7_checks.xml'
+    findbugsExcludeFilterFile = '../config/findbugs/findbugs-filter.xml'
 
 
 }
@@ -81,7 +86,7 @@ android {
         buildConfigField "String", "BUILD_TIME", "\"${rootProject.ext.buildTime}\""
 
         testApplicationId 'com.grottworkshop.fgbuildtutorialandroid.test'
-        testInstrumentationRunner 'com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner'
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         testHandleProfiling true
         testFunctionalTest true
     }
@@ -298,7 +303,8 @@ configurations{
     androidJacocoAgent
     androidJacocoAnt
     javancss
-
+    findbugs
+    classycle
 }
 
 
@@ -307,13 +313,14 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile rootProject.ext.androidsupportapptcompatv7
 
+    classycle fileTree(dir:'config/classycle/libs', include:['*.jar'])
     checkstyle rootProject.ext.codeqacheckstyle
     pmd rootProject.ext.codeqapmd
     jdepend rootProject.ext.codeqajdepend
     jdepend rootProject.ext.codeqajdependant
     androidJacocoAgent rootProject.ext.codeqajacoco
     androidJacocoAnt rootProject.ext.codeqajacocoant
-
+    findbugs rootProject.ext.codeqafindbugs
     javancss rootProject.ext.codeqajavancss
 
 
@@ -335,12 +342,11 @@ dependencies {
 
     provided rootProject.ext.daggercompiler
 
-    androidTestCompile(rootProject.ext.doubleespresso) {
-        exclude group: 'com.squareup.dagger', module: 'dagger'
-        exclude group: 'com.android.support', module: 'support-v4'
+    androidTestCompile rootProject.ext.espresso
+    androidTestCompile rootProject.ext.espressosupportlib
+    androidTestCompile rootProject.ext.espressocontrib
 
-    }
-    androidTestCompile rootProject.ext.doubleespressoandroidsupportv4
+
 
     androidTestCompile rootProject.ext.assertjandroid
     androidTestCompile rootProject.ext.assertjandroidsupportv4
@@ -505,6 +511,31 @@ task jdependDebugMain{
 }
 check.dependsOn("jdependDebugMain")
 
+task findbugsMain(type:FindBugs){
+    description = 'completes findbugs analysis of debug/main'
+    group = 'verification'
+
+
+    ignoreFailures = true
+    classes = fileTree('build/intermediates/classes/debug')
+    source = fileTree('src/main/java')
+    classpath = files()
+    effort = 'max'
+
+    excludeFilter = file(findbugsExcludeFilterFile)
+
+    reports {
+        xml.enabled = true
+        xml.destination = findbugsMainXmlOutput
+    }
+
+    doLast{
+        ant.xslt(in:findbugsMainXmlOutput, style:findbugsXslFile, out:findbugsMainHtmlOuput)
+    }
+
+}
+check.dependsOn("findbugsMain")
+
 task checkstyleMain(type:Checkstyle) {
 
     description = 'performs checkstyle checks on main sourceSet'
@@ -522,7 +553,7 @@ task checkstyleMain(type:Checkstyle) {
     // empty classpath
     classpath = files()
 
-    configFile = file(checkstyleXslFile)
+    configFile = file(checkstyleChecksFile)
 
     reports{
         xml.enabled = true
@@ -551,7 +582,7 @@ task checkstyleAndroidTest(type:Checkstyle){
     // empty classpath
     classpath = files()
 
-    configFile = file(checkstyleXslFile)
+    configFile = file(checkstyleChecksFile)
 
     reports{
         xml.enabled = true

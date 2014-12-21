@@ -233,6 +233,12 @@ ext {
      */
     dexmaker = 'com.google.dexmaker:dexmaker:1.0'
     dexmakermockito = 'com.google.dexmaker:dexmaker-mockito:1.0'
+
+    espresso = 'com.android.support.test.espresso:espresso-core:2.0'
+    espressosupportlib = 'com.android.support.test:testing-support-lib:0.1'
+    espressocontrib = 'com.android.support.test.espresso:espresso-contrib:2.0'
+
+
     doubleespresso = 'com.jakewharton.espresso:espresso:1.1-r3'
     doubleespressoandroidsupportv4 = 'com.jakewharton.espresso:espresso-support-v4:1.1-r3'
     mockito = 'org.mockito:mockito-core:1.9.5'
