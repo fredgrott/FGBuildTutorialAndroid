@@ -181,18 +181,18 @@ ext {
 
     //our dependencies, lowercase to differentiate between deps and other global vars
     //support libs, see block above for renderscript support lib activation
-    androidsupportv4 = 'com.android.support:support-v4:21.0.0'
-    androidsupportv13 = 'com.android.support:support-v13:21.0.0'
-    androidsupportannotations = 'com.android.support:support-annotations:21.0.0'
-    androidsupportrecyclerviewv7 = 'com.android.support:recyclerview-v7:21.0.0'
-    androidsupportpalettev7 = 'com.android.support:palette-v7:21.0.0'
-    androidsupportmultidexinstrumentation = 'com.android.support:multidex-instrumentation:1.0.0'
-    androidsupportmultidex = 'com.android.support:multidex:1.0.0'
-    androidsupportmediarouterv7 = 'com.android.support:mediarouter-v7:21.0.0'
-    androidsupportleanbackv17 = 'com.android.support:leanback-v17:21.0.0'
-    androidsupportgridlayoutv7 = 'com.android.support:gridlayout-v7:21.0.0'
-    androidsupportcardviewv7 = 'com.android.support:cardview-v7:21.0.0'
-    androidsupportapptcompatv7 = 'com.android.support:appcompat-v7:21.0.0'
+    androidsupportv4 = 'com.android.support:support-v4:21.0.3'
+    androidsupportv13 = 'com.android.support:support-v13:21.0.3'
+    androidsupportannotations = 'com.android.support:support-annotations:21.0.3'
+    androidsupportrecyclerviewv7 = 'com.android.support:recyclerview-v7:21.0.3'
+    androidsupportpalettev7 = 'com.android.support:palette-v7:21.0.3'
+    androidsupportmultidexinstrumentation = 'com.android.support:multidex-instrumentation:1.0.1'
+    androidsupportmultidex = 'com.android.support:multidex:1.0.1'
+    androidsupportmediarouterv7 = 'com.android.support:mediarouter-v7:21.0.3'
+    androidsupportleanbackv17 = 'com.android.support:leanback-v17:21.0.3'
+    androidsupportgridlayoutv7 = 'com.android.support:gridlayout-v7:21.0.3'
+    androidsupportcardviewv7 = 'com.android.support:cardview-v7:21.0.3'
+    androidsupportapptcompatv7 = 'com.android.support:appcompat-v7:21.0.3'
 
     //assertj libs to match androidsupport stuff
     assertjandroid = 'com.squareup.assertj:assertj-android:1.0.0'
@@ -235,12 +235,11 @@ ext {
     dexmakermockito = 'com.google.dexmaker:dexmaker-mockito:1.0'
 
     espresso = 'com.android.support.test.espresso:espresso-core:2.0'
-    espressosupportlib = 'com.android.support.test:testing-support-lib:0.1'
+
     espressocontrib = 'com.android.support.test.espresso:espresso-contrib:2.0'
 
 
-    doubleespresso = 'com.jakewharton.espresso:espresso:1.1-r3'
-    doubleespressoandroidsupportv4 = 'com.jakewharton.espresso:espresso-support-v4:1.1-r3'
+
     mockito = 'org.mockito:mockito-core:1.9.5'
     spoonclient = 'com.squareup.spoon:spoon-client:1.1.1'
 

@@ -1,0 +1,26 @@
+<lint>
+    <!--okio InvalidPackage ignore -->
+    <issue id="InvalidPackage">
+        <ignore regexp=".*okio.*" />
+    </issue>
+
+    <issue id="TypographyFractions" severity="ignore">
+
+    </issue>
+
+    <issue id="TypographyQuotes" severity="ignore">
+
+    </issue>
+
+    <issue id="RtlHardcoded" severity="warning">
+
+    </issue>
+
+    <issue id="RtlCompat" severity="warning">
+
+    </issue>
+
+    <issue id="RtlEnabled" severity="warning">
+
+    </issue>
+</lint>

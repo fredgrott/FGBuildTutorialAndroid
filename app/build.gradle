@@ -56,6 +56,11 @@ ext {
     javancssAndroidTestXmlOutput = 'build/reports/javancss/javancss-androidTest.xml'
     javancssAndroidTestHtmlOutput = 'build/reports/javancss/javancss-androidTest.html'
 
+    classycleMainXmlOutput = 'build/reports/classycle/classycle-main.xml'
+    classycleMainHtmlOutput = 'build/reports/classycle/classycle-main.html'
+
+
+    classycleXslFile = '../config/classycle/reportXMLtoHTML.xsl'
     jdependXslFile = '../config/jdepend/jdepend.xsl'
     checkstyleXslFile = '../config/checkstyle/checkstyle-noframes-severity-sorted.xsl'
     pmdXslFile = '../config/pmd/pmd-nicerhtml.xsl'
@@ -220,7 +225,7 @@ android {
     Lint is already setup as a plugin to iterate over all build variants.
      */
     lintOptions {
-        lintConfig file("okio-custom-lint.xml")
+        lintConfig file("my-custom-lint.xml")
 
         // set to true to turn off analysis progress reporting by lint
         quiet false
@@ -235,9 +240,9 @@ android {
         // if true, treat all warnings as errors
         warningsAsErrors true
         // turn off checking the given issue id's
-        disable 'TypographyFractions', 'TypographyQuotes'
+        //disable 'TypographyFractions', 'TypographyQuotes'
         // turn on the given issue id's
-        enable 'RtlHardcoded', 'RtlCompat', 'RtlEnabled'
+        //enable 'RtlHardcoded', 'RtlCompat', 'RtlEnabled'
         // check *only* the given issue id's
         check 'NewApi', 'InlinedApi'
         // if true, don't include source code lines in the error output
@@ -304,7 +309,7 @@ configurations{
     androidJacocoAnt
     javancss
     findbugs
-    classycle
+
 }
 
 
@@ -312,8 +317,9 @@ configurations{
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile rootProject.ext.androidsupportapptcompatv7
+    compile rootProject.ext.androidsupportannotations
 
-    classycle fileTree(dir:'config/classycle/libs', include:['*.jar'])
+
     checkstyle rootProject.ext.codeqacheckstyle
     pmd rootProject.ext.codeqapmd
     jdepend rootProject.ext.codeqajdepend
@@ -343,7 +349,7 @@ dependencies {
     provided rootProject.ext.daggercompiler
 
     androidTestCompile rootProject.ext.espresso
-    androidTestCompile rootProject.ext.espressosupportlib
+
     androidTestCompile rootProject.ext.espressocontrib
 
 
@@ -535,6 +541,8 @@ task findbugsMain(type:FindBugs){
 
 }
 check.dependsOn("findbugsMain")
+
+
 
 task checkstyleMain(type:Checkstyle) {
 
