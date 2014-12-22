@@ -7,11 +7,11 @@
         <title>JavaNCSS Analysis</title>
         <style type="text/css">
           body {
-          font:normal 68% verdana,arial,helvetica;
+          font:normal 80% verdana,arial,helvetica;
           color:#000000;
           }
           table tr td, tr th {
-            font-size: 68%;
+            font-size: 80%;
           }
           table.details tr th{
           font-weight: bold;

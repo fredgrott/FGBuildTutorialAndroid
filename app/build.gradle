@@ -274,7 +274,8 @@ android {
         // Set the severity of the given issues to warning
         warning 'ResourceAsColor'
         // Set the severity of the given issues to ignore (same as disabling the check)
-        ignore 'TypographyQuotes'
+        //ignore 'TypographyQuotes'
+
 
 
     }
