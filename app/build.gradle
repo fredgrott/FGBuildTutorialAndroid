@@ -143,7 +143,7 @@ android {
     Or on rooted connected devices with the command:
          $ gradlew connectedCheck
     Coverage reports will be found in
-          build/[reports/coverage
+          build/reports/coverage
      */
     jacoco {
         version = '0.7.1.20140508213'
