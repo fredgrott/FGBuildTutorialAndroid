@@ -42,7 +42,12 @@ buildscript {
         // debug log plugin
         classpath 'com.jakewharton.hugo:hugo-plugin:1.1.0'
         // spoon-gradle plugin for debugging, has a configuration block
-        classpath 'com.stanfy.spoon:spoon-gradle-plugin:0.14.1'
+        // lint relies on guava but a newer version
+        // this fixes the lin task execution errors
+        classpath('com.stanfy.spoon:spoon-gradle-plugin:0.14.1') {
+            exclude module: 'guava'
+        }
+        classpath 'com.google.guava:guava:18.0'
         //loglifecycle plugin
        // classpath 'com.github.stephanenicolas.loglifecycle:loglifecycle-plugin:1.0.3'
         //bintray for library projects
