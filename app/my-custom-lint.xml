@@ -23,4 +23,22 @@
     <issue id="RtlEnabled" severity="warning">
 
     </issue>
+
+    <issue id="NewApi" severity="fatal">
+
+    </issue>
+
+    <issue id="InlineApi" severity="fatal">
+
+    </issue>
+
+    <issue id="Wakelock" severity="error">
+
+    </issue>
+    <issue id="TextViewEdits" severity="error">
+
+    </issue>
+    <issue id="ResourceAsColor" severity="warning">
+
+    </issue>
 </lint>
