@@ -534,6 +534,8 @@ task findbugsMain(type:FindBugs){
 
     reports {
         xml.enabled = true
+        //so that we have human readable messages
+        xml.withMessages = true
         xml.destination = findbugsMainXmlOutput
     }
 
