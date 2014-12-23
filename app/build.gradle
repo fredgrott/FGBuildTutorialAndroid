@@ -609,8 +609,8 @@ check.dependsOn("checkstyleAndroidTest")
 task pmdMain(type:Pmd) {
     description = 'performs pmd checks on main sourceSet'
     group = 'verification'
-    //we assume that NOPMD comment might not be enabled through gradle ant builder for this task
-    ignoreFailures = true
+    //we can use same java 5 SuppressWarnings("PMD:rule")
+    ignoreFailures = false
     consoleOutput = true
 
     ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
@@ -637,8 +637,8 @@ task pmdAndroidTest(type:Pmd){
     description = 'performs pmd checks on the AndroidTest sourceSet'
     group = 'verififcation'
 
-    //we assume that NOPMD comment might not be enabled through gradle ant builder for this task
-    ignoreFailures = true
+
+    ignoreFailures = false
     consoleOutput = true
 
     ruleSets = ["java-basic", "java-braces", "java-strings", "java-android", "java-junit"]
