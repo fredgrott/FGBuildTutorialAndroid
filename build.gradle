@@ -47,7 +47,9 @@ buildscript {
         classpath('com.stanfy.spoon:spoon-gradle-plugin:0.14.1') {
             exclude module: 'guava'
         }
-        classpath 'com.google.guava:guava:18.0'
+        //ignore the message as it needs set to lint's lombok-ast dep which
+        //currently is guava 15
+        classpath 'com.google.guava:guava:15.0'
         //loglifecycle plugin
        // classpath 'com.github.stephanenicolas.loglifecycle:loglifecycle-plugin:1.0.3'
         //bintray for library projects

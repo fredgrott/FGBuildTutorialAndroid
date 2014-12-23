@@ -334,7 +334,8 @@ dependencies {
 
     compile rootProject.ext.retrofit
 
-    compile rootProject.ext.dagger
+    //guava 15 again
+    //compile rootProject.ext.dagger
     compile rootProject.ext.butterknife
 
     compile rootProject.ext.otto
@@ -347,7 +348,7 @@ dependencies {
 
     debugCompile rootProject.ext.retrofitmock
 
-    provided rootProject.ext.daggercompiler
+    //provided rootProject.ext.daggercompiler
 
     androidTestCompile rootProject.ext.espresso
 
