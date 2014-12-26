@@ -9,6 +9,17 @@ variant is analyzed for cyclic defects.
 This will be kept up-to-date as the android gradle plugin and 3rd party plugins
 change.
 
+# The Pain
+
+With Google switching to gradle we do not have codeqa tools, aut/fsm tools switched
+to using gradle and switched to recognizing the new android SourceSets. On top of that,
+android gradle plugin 1.0.x does not fully load a groovy plugin so we cannot create
+some new groovy/gradle stuff to rescue us.
+
+However, at least for the codeqa part there is a way. It will be slightly brittle
+as it has some manually set stuff however we do get a nice module basis dashboard
+that displays the codeqa health of the module.
+
 # Aim of System
 
 To build artifacts of the software application or library and their documentations

@@ -2,7 +2,8 @@
 <xsl:output method="xml" indent="yes" doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
 doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" />
 <xsl:decimal-format decimal-separator="." grouping-separator="," />
-
+<xsl:param name="project" select="project"/>
+<xsl:param name="module" select="module"/>
 <!-- keys for violations list -->
 <xsl:key name="violations" match="violation" use="@rule" />
 
@@ -80,12 +81,14 @@ doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" />
 		</style>
 		</head>
 		<body>
+            <img src="../images/company_logo.png"/><img src="../images/pmd_logo.png"/><br/>
 			<a name="top"></a>
       <table border="0" cellpadding="0" cellspacing="0" width="100%">
       <tr>
         <td class="bannercell" rowspan="2">
         </td>
-    	<td class="text-align:right"><h2>PMD <xsl:value-of select="//pmd/@version"/> Report. Generated on <xsl:call-template name="timestamp"/></h2></td>
+    	<td class="text-align:right"><h2>PMD <xsl:value-of select="//pmd/@version"/> Report of <xsl:value-of
+            select="$module"/> module for the <xsl:value-of select="$project"/> project. Generated on <xsl:call-template name="timestamp"/></h2></td>
       </tr>
       </table>
     	<hr size="1"/>

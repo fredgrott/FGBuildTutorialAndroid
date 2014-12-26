@@ -24,6 +24,8 @@
          doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
          encoding="UTF-8"/>
 
+    <xsl:param name="project" select="project"/>
+    <xsl:param name="module" select="module"/>
     <!--
         Parameter for specifying HTMLized sources location; if current dir, use "./"
         If not passed, no links to sources are generated.
@@ -309,13 +311,11 @@
    </head>
    <body>
    <div id='content'>
+       <img src="../images/company_logo.png"/><img src="../images/umdFindbugs.png"/><br/>
       <h1>
          FindBugs (<xsl:value-of select="/BugCollection/@version" />)
-         Analysis for
-         <xsl:choose>
-            <xsl:when test='string-length(/BugCollection/Project/@projectName)>0'><xsl:value-of select="/BugCollection/Project/@projectName" /></xsl:when>
-            <xsl:otherwise><xsl:value-of select="/BugCollection/Project/@filename" /></xsl:otherwise>
-         </xsl:choose>
+         Analysis for <xsl:value-of select="$module"/> module for the <xsl:value-of select="$project"/> project.
+
       </h1>
       <div id="menu">
          <ul>

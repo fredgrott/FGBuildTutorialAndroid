@@ -30,3 +30,15 @@ Parts of the solution are:
    dash board that can get launched via ant.taskdefs to than create a
    dash board summary of al the reports and individual htnml reports.
    At that time we can eliminate the task created in step 5 as being no longer needed.
+
+
+# CodeQA Non-Dashboard Xsl Parameter Scheme
+
+Parameters:
+
+Project
+Module
+Rulesets
+Today
+Time
+JavaArtifactContext

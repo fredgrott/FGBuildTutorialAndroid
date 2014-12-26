@@ -20,6 +20,9 @@
  -->
 
 <xsl:output method="html" indent="yes"/>
+<xsl:param name="project" select="project"/>
+<xsl:param name="module" select="module"/>
+
 
 <xsl:template match="JDepend">
 	<html>
@@ -50,7 +53,7 @@
 		margin-right:2em;
 	  }
 	  h1 {
-		margin: 0px 0px 5px; font: 165% verdana,arial,helvetica
+		margin: 0px 0px 5px; font: bold 165% verdana,arial,helvetica
 	  }
 	  h2 {
 		margin-top: 1em; margin-bottom: 0.5em; font: bold 125% verdana,arial,helvetica
@@ -88,9 +91,10 @@
 		<li><xsl:value-of select="@name"/></li>
 	</xsl:for-each>
 	</ul-->
-	
+    <img src="../images/company_logo.png"/><img sligh="right" src="../images/jdepend-logo.png"/><br/>
 	<h1><a name="top">JDepend Analysis</a></h1>
 	<p align="right">Designed for use with <a href="http://www.clarkware.com/software/JDepend.html">JDepend</a> and <a href="http://jakarta.apache.org">Ant</a>.</p>
+    <p align="left">Analysis of <xsl:value-of select="$module"/> module for the <xsl:value-of select="$project"/> project .</p>
 	<hr size="2" />
 	
 	<table width="100%"><tr><td>

@@ -24,11 +24,13 @@ ext {
 
     //a little groovy syntax sugar and some gradle knowledge gives a nice
     //human style project name rather than default IDE/gradle app name
-    ourProjectName = '${rootProject.projectDir.name}'+ '${project.name.capitalize()}'
-
+    ourProjectName = "${rootProject.projectDir.name}" + "${project.name.capitalize()}"
+    ourProjectModule = "${project.name}"
     ourProjectLead = 'Fred Grott'
     ourProjectDescription = 'basic app showing build script with app source code'
     //javadocFooter = "Copyright 2014-${rootProject.ext.reportBuildDate} by $project.ext.ourProjectLead Apache License 2.0"
+
+
 
     archiveVariant = ['debug','release']
     javadocVariant = ['release']
@@ -502,6 +504,19 @@ android.applicationVariants.all { variant ->
 
 }
 
+task codeqaPrep{
+
+    def ourReportsImagesDir = new File('build/reports/images')
+    ourReportsImagesDir.mkdirs()
+    copy{
+        from '../config/images'
+        into ourReportsImagesDir
+        include '**/*.png'
+    }
+
+
+}
+check.dependsOn("codeqaPrep")
 
 task jdependDebugMain{
     description = 'completes jdepend analysis of main sourceset'
@@ -515,14 +530,17 @@ task jdependDebugMain{
             pathElement(location: 'build/intermediates/classes/debug')
         }
     }
-    ant.xslt(in:jdependMainXmlOutput, style:jdependXslFile, out:jdependMainHtmlOutput)
+    ant.xslt(in:jdependMainXmlOutput, style:jdependXslFile, out:jdependMainHtmlOutput){
+        param(name:'project', expression:ourProjectName)
+        param(name:'module', expression:ourProjectModule)
+
+    }
 }
 check.dependsOn("jdependDebugMain")
 
 task findbugsMain(type:FindBugs){
     description = 'completes findbugs analysis of debug/main'
     group = 'verification'
-
 
     ignoreFailures = true
     classes = fileTree('build/intermediates/classes/debug')
@@ -540,7 +558,10 @@ task findbugsMain(type:FindBugs){
     }
 
     doLast{
-        ant.xslt(in:findbugsMainXmlOutput, style:findbugsXslFile, out:findbugsMainHtmlOuput)
+        ant.xslt(in:findbugsMainXmlOutput, style:findbugsXslFile, out:findbugsMainHtmlOuput){
+            param(name:'project', expression: ourProjectName)
+            param(name:'module', expression: ourProjectModule)
+        }
     }
 
 }
@@ -552,6 +573,7 @@ task checkstyleMain(type:Checkstyle) {
 
     description = 'performs checkstyle checks on main sourceSet'
     group = 'verififcation'
+
 
     //we can use annotation of SuppressWarning('checkstyle:rule') to
     //ignore certain violations hence this setting to false
@@ -573,7 +595,10 @@ task checkstyleMain(type:Checkstyle) {
     }
     doLast{
 
-        ant.xslt(in:checkstyleMainXmlOutput, style:checkstyleXslFile, out:checkstyleMainHtmlOutput)
+        ant.xslt(in:checkstyleMainXmlOutput, style:checkstyleXslFile, out:checkstyleMainHtmlOutput){
+            param(name:'project', expression: ourProjectName)
+            param(name:'module', expression: ourProjectModule)
+        }
     }
 
 }
@@ -601,7 +626,10 @@ task checkstyleAndroidTest(type:Checkstyle){
         xml.destination = checkstyleAndroidTestXmlOutput
     }
     doLast{
-        ant.xslt(in:checkstyleAndroidTestXmlOutput, style:checkstyleXslFile, out:checkstyleAndroidTestHtmlOutput)
+        ant.xslt(in:checkstyleAndroidTestXmlOutput, style:checkstyleXslFile, out:checkstyleAndroidTestHtmlOutput){
+            param(name:'project', expression: ourProjectName)
+            param(name:'module', expression: ourProjectModule)
+        }
     }
 }
 check.dependsOn("checkstyleAndroidTest")
@@ -626,7 +654,10 @@ task pmdMain(type:Pmd) {
     }
 
     doLast{
-        ant.xslt(in:pmdMainXmlOutput, style:pmdXslFile, out:pmdMainHtmlOutput)
+        ant.xslt(in:pmdMainXmlOutput, style:pmdXslFile, out:pmdMainHtmlOutput){
+            param(name:'project', expression: ourProjectName)
+            param(name:'module', expression: ourProjectModule)
+        }
     }
 
 
@@ -655,7 +686,10 @@ task pmdAndroidTest(type:Pmd){
 
     doLast{
 
-        ant.xslt(in:pmdAndroidTestXmlOutput, style:pmdXslFile, out:pmdAndroidTestHtmlOutput)
+        ant.xslt(in:pmdAndroidTestXmlOutput, style:pmdXslFile, out:pmdAndroidTestHtmlOutput){
+            param(name:'project', expression: ourProjectName)
+            param(name:'module', expression: ourProjectModule)
+        }
     }
 
 
