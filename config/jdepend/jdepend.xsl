@@ -22,6 +22,7 @@
 <xsl:output method="html" indent="yes"/>
 <xsl:param name="project" select="project"/>
 <xsl:param name="module" select="module"/>
+<xsl:param name="context" select="context"/>
 
 
 <xsl:template match="JDepend">
@@ -94,7 +95,9 @@
     <img src="../images/company_logo.png"/><img sligh="right" src="../images/jdepend-logo.png"/><br/>
 	<h1><a name="top">JDepend Analysis</a></h1>
 	<p align="right">Designed for use with <a href="http://www.clarkware.com/software/JDepend.html">JDepend</a> and <a href="http://jakarta.apache.org">Ant</a>.</p>
-    <p align="left">Analysis of <xsl:value-of select="$module"/> module for the <xsl:value-of select="$project"/> project .</p>
+    <h2>Project:<xsl:value-of select="$project"/><br/>
+        Module:<xsl:value-of select="$module"/><br/>
+    Context:<xsl:value-of select="$context"/><br/></h2>
 	<hr size="2" />
 	
 	<table width="100%"><tr><td>

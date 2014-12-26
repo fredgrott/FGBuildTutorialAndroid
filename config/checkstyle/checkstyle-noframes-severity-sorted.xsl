@@ -3,6 +3,7 @@
 <xsl:decimal-format decimal-separator="." grouping-separator="," />
 <xsl:param name="project" select="project"/>
 <xsl:param name="module" select="module"/>
+<xsl:param name="context" select="context"/>
 <xsl:key name="files" match="file" use="@name" />
 
 <!-- Checkstyle XML Style Sheet by Rolf Wojtech <rolf@wojtech.de>                   -->
@@ -89,10 +90,13 @@
           <img src="http://jakarta.apache.org/images/jakarta-logo.gif" alt="http://jakarta.apache.org" align="left" border="0"/>
           </a-->
         </td>
-        <td class="text-align:right"><h2>CheckStyle Audit of <xsl:value-of select="$module"/> module for the <xsl:value-of
-            select="$project"/> project.</h2></td>
+        <td class="text-align:right"><h2>CheckStyle Audit<br/>
+        Project:<xsl:value-of select="$project"/><br/>
+        Module:<xsl:value-of select="$module"/><br/>
+        Context:<xsl:value-of select="$context"/></h2></td>
         </tr>
         <tr>
+
         <td class="text-align:right">Designed for use with <a href='http://checkstyle.sourceforge.net/'>CheckStyle</a> and <a href='http://jakarta.apache.org'>Ant</a>.</td>
         </tr>
       </table>

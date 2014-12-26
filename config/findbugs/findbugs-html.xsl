@@ -26,6 +26,7 @@
 
     <xsl:param name="project" select="project"/>
     <xsl:param name="module" select="module"/>
+    <xsl:param name="context" select="context"/>
     <!--
         Parameter for specifying HTMLized sources location; if current dir, use "./"
         If not passed, no links to sources are generated.
@@ -314,9 +315,11 @@
        <img src="../images/company_logo.png"/><img src="../images/umdFindbugs.png"/><br/>
       <h1>
          FindBugs (<xsl:value-of select="/BugCollection/@version" />)
-         Analysis for <xsl:value-of select="$module"/> module for the <xsl:value-of select="$project"/> project.
-
+         Analysis
       </h1>
+       <h2>Project:<xsl:value-of select="$project"/><br/>
+       Module:<xsl:value-of select="$module"/><br/>
+       Context:<xsl:value-of select="$context"/><br/></h2>
       <div id="menu">
          <ul>
             <li id='bug-summary-tab' class='menu-tab-selected'>

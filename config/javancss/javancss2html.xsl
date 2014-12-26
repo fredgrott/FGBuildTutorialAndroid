@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="html"/>
+  <xsl:param name="project" select="project"/>
+  <xsl:param name="module" select="module"/>
+  <xsl:param name="context" select="context"/>
   <xsl:template match="/">
     <html>
       <head>
@@ -29,7 +32,7 @@
           margin-right:2em;
           }
           h1 {
-          margin: 0px 0px 5px; font: 165% verdana,arial,helvetica
+          margin: 0px 0px 5px; font: bold 165% verdana,arial,helvetica
           }
           h2 {
           margin-top: 1em; margin-bottom: 0.5em; font: bold 125% verdana,arial,helvetica
@@ -58,10 +61,14 @@
         </style>
       </head>  
       <body>
+          <img src="../images/company_logo.png"/><img src="../images/javancssLogo_med.png"/><br/>
         <h1>
         <a name="top">JavaNCSS Analysis</a>
         </h1>
         <p align="right">Designed for use with <a href="http://www.kclee.de/clemens/java/javancss/">JavaNCSS</a> and <a href="http://jakarta.apache.org">Ant</a>.</p>
+          <h2>Project:<xsl:value-of select="$project"/><br/>
+          Module:<xsl:value-of select="$module"/><br/>
+          Context:<xsl:value-of select="$context"/><br/></h2>
         <hr size="2"/>
         <xsl:apply-templates/>
       </body>

@@ -24,7 +24,7 @@ ext {
 
     //a little groovy syntax sugar and some gradle knowledge gives a nice
     //human style project name rather than default IDE/gradle app name
-    ourProjectName = "${rootProject.projectDir.name}" + "${project.name.capitalize()}"
+    ourProjectName = "${rootProject.projectDir.name}"
     ourProjectModule = "${project.name}"
     ourProjectLead = 'Fred Grott'
     ourProjectDescription = 'basic app showing build script with app source code'
@@ -533,6 +533,7 @@ task jdependDebugMain{
     ant.xslt(in:jdependMainXmlOutput, style:jdependXslFile, out:jdependMainHtmlOutput){
         param(name:'project', expression:ourProjectName)
         param(name:'module', expression:ourProjectModule)
+        param(name:'context', expression:'debug classes')
 
     }
 }
@@ -561,6 +562,7 @@ task findbugsMain(type:FindBugs){
         ant.xslt(in:findbugsMainXmlOutput, style:findbugsXslFile, out:findbugsMainHtmlOuput){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
+            param(name:'context', expression:'main SourceSet and debug classes')
         }
     }
 
@@ -598,6 +600,7 @@ task checkstyleMain(type:Checkstyle) {
         ant.xslt(in:checkstyleMainXmlOutput, style:checkstyleXslFile, out:checkstyleMainHtmlOutput){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
+            param(name:'context', expression: 'main sourceSet')
         }
     }
 
@@ -629,6 +632,7 @@ task checkstyleAndroidTest(type:Checkstyle){
         ant.xslt(in:checkstyleAndroidTestXmlOutput, style:checkstyleXslFile, out:checkstyleAndroidTestHtmlOutput){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
+            param(name:'context', expression:'androidTest sourceSet')
         }
     }
 }
@@ -657,6 +661,7 @@ task pmdMain(type:Pmd) {
         ant.xslt(in:pmdMainXmlOutput, style:pmdXslFile, out:pmdMainHtmlOutput){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
+            param(name:'context', expression:'main sourceSet')
         }
     }
 
@@ -689,6 +694,7 @@ task pmdAndroidTest(type:Pmd){
         ant.xslt(in:pmdAndroidTestXmlOutput, style:pmdXslFile, out:pmdAndroidTestHtmlOutput){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
+            param(name:'context', expression:'androidTest sourceSet')
         }
     }
 
@@ -714,10 +720,15 @@ task javancssMain  {
     jsReportsDir.mkdirs()
 
 
+
     ant.taskdef(name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath)
     ant.javancss(srcdir:'src/main/java', generateReport:true, outputfile: javancssMainXmlOutput, format:'xml')
 
-    ant.xslt(in: javancssMainXmlOutput, style: '../config/javancss/javancss2html.xsl',out: javancssMainHtmlOutput)
+    ant.xslt(in: javancssMainXmlOutput, style: '../config/javancss/javancss2html.xsl',out: javancssMainHtmlOutput){
+        param(name:'project', expression: ourProjectName)
+        param(name:'module', expression: ourProjectModule)
+        param(name:'context', expression: 'main sourceSet')
+    }
 
 
 }
@@ -735,7 +746,11 @@ task javancssAndroidTest {
     ant.taskdef(name:'javancss', classname:'javancss.JavancssAntTask', classpath:configurations.javancss.asPath)
     ant.javancss(srcdir:'src/androidTest/java', generateReport:true, outputfile: javancssAndroidTestXmlOutput, format:'xml')
 
-    ant.xslt(in: javancssAndroidTestXmlOutput, style: '../config/javancss/javancss2html.xsl',out: javancssAndroidTestHtmlOutput)
+    ant.xslt(in: javancssAndroidTestXmlOutput, style: '../config/javancss/javancss2html.xsl',out: javancssAndroidTestHtmlOutput){
+        param(name:'project', expression: ourProjectName)
+        param(name:'module', expression: ourProjectModule)
+        param(name:'context', expression: 'androidTest sourceSet')
+    }
 
 
 }

@@ -36,9 +36,9 @@ Parts of the solution are:
 
 Parameters:
 
-Project
-Module
-Rulesets
-Today
-Time
-JavaArtifactContext
+project
+module
+rulesets
+today
+time
+context
