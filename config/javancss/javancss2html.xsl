@@ -4,6 +4,7 @@
   <xsl:param name="project" select="project"/>
   <xsl:param name="module" select="module"/>
   <xsl:param name="context" select="context"/>
+  <xsl:param name="datetimestamp" select="datetimestamp"/>
   <xsl:template match="/">
     <html>
       <head>
@@ -68,7 +69,8 @@
         <p align="right">Designed for use with <a href="http://www.kclee.de/clemens/java/javancss/">JavaNCSS</a> and <a href="http://jakarta.apache.org">Ant</a>.</p>
           <h2>Project:<xsl:value-of select="$project"/><br/>
           Module:<xsl:value-of select="$module"/><br/>
-          Context:<xsl:value-of select="$context"/><br/></h2>
+          Context:<xsl:value-of select="$context"/><br/>
+          DateTime:<xsl:value-of select="$datetimestamp"/></h2>
         <hr size="2"/>
         <xsl:apply-templates/>
       </body>

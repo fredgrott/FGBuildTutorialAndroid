@@ -29,6 +29,7 @@ ext {
     ourProjectLead = 'Fred Grott'
     ourProjectDescription = 'basic app showing build script with app source code'
     //javadocFooter = "Copyright 2014-${rootProject.ext.reportBuildDate} by $project.ext.ourProjectLead Apache License 2.0"
+    ourProjectReportDateTime = rootProject.ext.buildTime
 
 
 
@@ -480,7 +481,7 @@ android.applicationVariants.all { variant ->
                 memberLevel = JavadocMemberLevel.PROTECTED
                 author = true
                 header = project.ext.ourProjectName
-                footer = "Copyright 2014-$rootProject.ext.reportBuildDate by $project.ext.ourProjectLead Apache License 2.0"
+                footer = "Copyright 2014-$rootProject.ext.buildTime by $project.ext.ourProjectLead Apache License 2.0"
                 linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference')
                 stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
 
@@ -534,6 +535,8 @@ task jdependDebugMain{
         param(name:'project', expression:ourProjectName)
         param(name:'module', expression:ourProjectModule)
         param(name:'context', expression:'debug classes')
+        param(name:'datetimestamp', expression: ourProjectReportDateTime)
+
 
     }
 }
@@ -563,6 +566,7 @@ task findbugsMain(type:FindBugs){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
             param(name:'context', expression:'main SourceSet and debug classes')
+            param(name:'datetimestamp', expression: ourProjectReportDateTime)
         }
     }
 
@@ -601,6 +605,7 @@ task checkstyleMain(type:Checkstyle) {
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
             param(name:'context', expression: 'main sourceSet')
+            param(name:'datetimestamp', expression: ourProjectReportDateTime)
         }
     }
 
@@ -633,6 +638,7 @@ task checkstyleAndroidTest(type:Checkstyle){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
             param(name:'context', expression:'androidTest sourceSet')
+            param(name:'datetimestamp', expression: ourProjectReportDateTime)
         }
     }
 }
@@ -662,6 +668,7 @@ task pmdMain(type:Pmd) {
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
             param(name:'context', expression:'main sourceSet')
+            param(name:'datetimestamp', expression: ourProjectReportDateTime)
         }
     }
 
@@ -695,6 +702,7 @@ task pmdAndroidTest(type:Pmd){
             param(name:'project', expression: ourProjectName)
             param(name:'module', expression: ourProjectModule)
             param(name:'context', expression:'androidTest sourceSet')
+            param(name:'datetimestamp', expression: ourProjectReportDateTime)
         }
     }
 
@@ -728,6 +736,7 @@ task javancssMain  {
         param(name:'project', expression: ourProjectName)
         param(name:'module', expression: ourProjectModule)
         param(name:'context', expression: 'main sourceSet')
+        param(name:'datetimestamp', expression: ourProjectReportDateTime)
     }
 
 
@@ -750,6 +759,7 @@ task javancssAndroidTest {
         param(name:'project', expression: ourProjectName)
         param(name:'module', expression: ourProjectModule)
         param(name:'context', expression: 'androidTest sourceSet')
+        param(name:'datetimestamp', expression: ourProjectReportDateTime)
     }
 
 

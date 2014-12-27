@@ -27,6 +27,7 @@
     <xsl:param name="project" select="project"/>
     <xsl:param name="module" select="module"/>
     <xsl:param name="context" select="context"/>
+    <xsl:param name="datetimestamp" select="datetimestamp"/>
     <!--
         Parameter for specifying HTMLized sources location; if current dir, use "./"
         If not passed, no links to sources are generated.
@@ -319,7 +320,8 @@
       </h1>
        <h2>Project:<xsl:value-of select="$project"/><br/>
        Module:<xsl:value-of select="$module"/><br/>
-       Context:<xsl:value-of select="$context"/><br/></h2>
+       Context:<xsl:value-of select="$context"/><br/>
+       DateTime:<xsl:value-of select="$datetimestamp"/><br/></h2>
       <div id="menu">
          <ul>
             <li id='bug-summary-tab' class='menu-tab-selected'>
@@ -391,7 +393,7 @@
 <!-- generate summary report from stats -->
 <xsl:template name="generateSummary" >
 <div class='summary' id='bug-summary'>
-   <h2>FindBugs Analysis generated at: <xsl:value-of select="/BugCollection/FindBugsSummary/@timestamp" /></h2>
+   <h2>FindBugs Analysis </h2>
    <table>
       <tr>
          <th>Package</th>

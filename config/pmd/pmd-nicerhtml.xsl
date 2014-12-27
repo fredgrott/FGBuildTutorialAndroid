@@ -5,6 +5,7 @@ doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" />
 <xsl:param name="project" select="project"/>
 <xsl:param name="module" select="module"/>
 <xsl:param name="context" select="context"/>
+<xsl:param name="datetimestamp" select="datetimestamp"/>
 <!-- keys for violations list -->
 <xsl:key name="violations" match="violation" use="@rule" />
 
@@ -91,7 +92,8 @@ doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" />
     	<td class="text-align:right"><h2>PMD <xsl:value-of select="//pmd/@version"/> Report  Generated on <xsl:call-template name="timestamp"/><br/>
         Project:<xsl:value-of select="$project"/><br/>
         Module:<xsl:value-of select="$module"/><br/>
-        Context:<xsl:value-of select="$context"/><br/></h2></td>
+        Context:<xsl:value-of select="$context"/><br/>
+        DateTime:<xsl:value-of select="$datetimestamp"/></h2></td>
       </tr>
       </table>
     	<hr size="1"/>

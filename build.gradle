@@ -106,9 +106,11 @@ ext {
     /*
         Compute Date and time for reports
      */
-    reportBuildDate = new Date().format('yyyy.MM.dd', TimeZone.getTimeZone("UTC"))
-    reportBuildTime = new Date().format('HH:mm:ss', TimeZone.getTimeZone("UTC"))
+    
     buildTime = new Date().format("yyyy-MM-dd'T'HH:mm'Z'", TimeZone.getTimeZone("UTC"))
+
+
+
 
     /*
     Android gradle plugin only loads java-base plugin and thus project docsDir and
