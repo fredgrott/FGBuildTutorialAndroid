@@ -482,7 +482,7 @@ android.applicationVariants.all { variant ->
                 author = true
                 header = project.ext.ourProjectName
                 footer = "Copyright 2014-$rootProject.ext.buildTime by $project.ext.ourProjectLead Apache License 2.0"
-                linksOffline('http://d.android.com/reference', '${android.sdkdirectory}/docs/reference')
+                linksOffline('http://d.android.com/reference', "${android.sdkDirectory}/docs/reference")
                 stylesheetFile = new File("${rootProject.ext.javadocsJDK7Stylesheet}")
 
             }
